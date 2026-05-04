@@ -1,35 +1,38 @@
 export interface Message {
+  id?: string,
   role: 'user' | 'ai';
   content: string;
   createdAt?: Date;
 }
 
 export interface File {
-  id: string,
+  id?: string,
   name: string,
   description: string,
   fileAddress: string,
   fileSize: string,
-  createdAt: string
+  uploadedBy: User,
+  createdAt?: string
 }
 
 export interface User {
-  id: string,
+  id?: string,
   firstName: string,
   lastName: string,
   email: string,
   password: string,
-  createdAt: string
+  messages?: Message[],
+  createdAt?: string
 }
 
 export interface Team {
-  id: string,
+  id?: string,
   title: string,
   description: string,
   code: string,
-  owner?: User,
-  members: TeamMember[],
-  createdAt: string,
+  ownerId?: string,
+  members?: TeamMember[],
+  createdAt?: string,
 }
 
 export interface TeamMember {

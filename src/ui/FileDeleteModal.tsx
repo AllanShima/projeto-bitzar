@@ -1,13 +1,14 @@
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import { DialogBackdrop, DialogPanel } from '@headlessui/react'
 import toast from 'react-hot-toast'
+import type { File } from '@/interfaces/Interfaces'
 
 interface FileModalProp {
     setIsOpen: Dispatch<SetStateAction<boolean>>
-    fileId: string
+    file: File
 }
 
-const FileDeleteModal = ({fileId, setIsOpen} : FileModalProp) => {
+const FileDeleteModal = ({file, setIsOpen} : FileModalProp) => {
     const handleDelete = () => {
         toast.success("Arquivo apagado com sucesso!");
         setIsOpen(false);
@@ -26,7 +27,7 @@ const FileDeleteModal = ({fileId, setIsOpen} : FileModalProp) => {
                             Confirmar Exclusão
                         </h2>
                         <p className='font-light text-sm'>
-                            Tem certeza que deseja excluir "Manual de Processos.pdf"? Esta ação não pode ser desfeita.
+                            Tem certeza que deseja excluir {file.name}? Esta ação não pode ser desfeita.
                         </p>
 
                         <div className="flex gap-4 justify-end">

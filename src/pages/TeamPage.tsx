@@ -7,11 +7,13 @@ import type { User } from 'firebase/auth'
 import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { IoSearch } from 'react-icons/io5'
-import { MdOutlineUploadFile } from 'react-icons/md'
-import { Users } from '@/assets/MockupData';
+import { Teams, Users } from '@/assets/MockupData';
+import type { Team } from '@/interfaces/Interfaces'
+import { FaUserPlus } from 'react-icons/fa'
+import NewMemberModal from '@/ui/NewMemberModal'
 
 const TeamPage = () => {
-  const [users, setUsers] = useState<User[]>(Users);
+  const [team, setTeam] = useState<Team>(Teams[0]!);
 
   const [newMemberModal, setNewMemberModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -38,7 +40,7 @@ const TeamPage = () => {
               className='flex w-fit h-fit px-4 py-2 bg-linear-to-r from-sky-500 to-fuchsia-500 rounded-xl hover:from-sky-600 hover:to-fuchsia-600 transition duration-200'>
               <span className='flex justify-center items-center space-x-3'>
                 <span>
-                  <MdOutlineUploadFile className='w-4.5 h-4.5 my-auto'/>
+                  <FaUserPlus className='w-4.5 h-4.5 my-auto'/>
                 </span>
                 <p className='font-medium text-white'>
                   Novo Usuário
@@ -55,18 +57,17 @@ const TeamPage = () => {
 
       <div className='flex flex-col w-full h-full bg-transparent overflow-y-auto'>
         <div className='flex flex-col w-full h-full px-7'>
-          {users.map((user) => (
-            <div key={user.uid}>
-              <UserCard user={user}/>              
+          {team.members?.map((teammate) => (
+            <div key={teammate.user?.id}>
+              <UserCard teammate={teammate}/>              
             </div>
           ))}
           {/* Spacer */}
           <span className='flex w-full h-10 p-2 bg-transparent'/>
         </div>
       </div>
-
       <Dialog open={newMemberModal} onClose={() => setNewMemberModal(false)}>
-        <NewUserModal setIsOpen={setNewMemberModal}/>
+        <NewMemberModal setIsOpen={setNewMemberModal}/>
       </Dialog>
 
       <Toaster/>

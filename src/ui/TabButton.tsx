@@ -8,9 +8,10 @@ interface TabButtonProps {
     activeColor: string;
     label: string;
     Icon: IconType;
+    size?: string
 }
 
-const TabButton = ({onClick, isActive,  activeColor, label, Icon} : TabButtonProps) => {
+const TabButton = ({onClick, isActive, activeColor, label, Icon, size} : TabButtonProps) => {
 
     const getTabStyle = (isActive: boolean) =>  // Retorna automaticamente
             isActive 
@@ -19,13 +20,13 @@ const TabButton = ({onClick, isActive,  activeColor, label, Icon} : TabButtonPro
 
     return (
         <button onClick={onClick}>
-            <div className={`flex items-center space-x-4 w-full h-full rounded-xl p-3 transition font-medium cursor-default border-none ${getTabStyle(isActive)}`}>
-                <span className='w-4.5 h-4.5'>
+            <div className={`flex items-center w-full h-full rounded-xl p-3 transition font-medium cursor-default border-none ${getTabStyle(isActive)}`}>
+                <span className={`flex space-x-4 ${size === null ? "w-4.5 h-4.5" : `${size}`}`}>
                     <Icon className='w-full h-full'/>
+                    <p className='font-normal'>
+                        {label}
+                    </p>
                 </span>
-                <p className='font-normal'>
-                    {label}
-                </p>
             </div>
         </button>        
     )

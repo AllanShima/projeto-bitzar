@@ -1,18 +1,18 @@
 import { DialogBackdrop, DialogPanel } from '@headlessui/react';
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import UserInput from './UserInput';
-import { FaUserPlus } from "react-icons/fa6";
+import { FaUserPlus } from 'react-icons/fa';
 
 interface NewUserModalProps {
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
 const NewUserModal = ({setIsOpen}: NewUserModalProps) => {
-    const [fileDescription, setFileDescription] = useState('');
+    const [userEmail, setUserEmail] = useState('');
 
     const [loading, setLoading] = useState(false);
 
-    const uploadFile = () => {
+    const handleNewUser = () => {
         // Adicionar novo arquivo
         setIsOpen(false);
     }
@@ -28,31 +28,18 @@ const NewUserModal = ({setIsOpen}: NewUserModalProps) => {
                     <fieldset className='space-y-4'>
                         <span className='flex flex-col space-y-1'>
                             <h2 className="font-medium text-purple-700 text-xl">
-                                Upload de Arquivo PDF
+                                
                             </h2>
                             <p className='font-light text-sm'>
                                 Faça upload de um novo documento PDF para o copiloto
                             </p>
                         </span>
-
-                        {/* Caixa de Item */}
-                        <button className='flex flex-col items-center w-full h-fit p-10 outline-2 outline-dashed outline-purple-300 hover:outline-purple-400 hover:cursor-pointer transition duration-200 rounded-2xl'>
-                            <span className='flex w-full justify-center'>
-                                <FaUserPlus className='w-18 h-18 text-purple-400'/>
-                            </span>
-                            <p className='text-gray-800 text-sm'>
-                                Clique para selecionar ou arraste o arquivo aqui
-                            </p>
-                            <p className='font-light text-xs'>
-                                PDF até 10MB
-                            </p>
-                        </button>
                         <div className='flex flex-col space-y-2'>
                             <label className='text-black font-medium'>
-                                Descrição do documento
+                                Email do usuário
                             </label>
                             <div className='flex w-full h-9'>
-                                <UserInput state={fileDescription} setState={setFileDescription} placeholder='Digite uma breve descrição...'/>                                
+                                <UserInput state={userEmail} setState={setUserEmail} placeholder='Digite o email do usuário...'/>                                
                             </div>                        
                         </div>
 
@@ -64,14 +51,13 @@ const NewUserModal = ({setIsOpen}: NewUserModalProps) => {
                                 Cancel
                             </button>
                             <button 
-                                onClick={() => uploadFile()}
+                                onClick={() => handleNewUser()}
                                 className='bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition rounded-lg px-6 py-2 text-white font-medium'
                             >
                                 Upload
                             </button>
                         </div>
                     </fieldset>
-
                 </DialogPanel>
             </div>        
         </>

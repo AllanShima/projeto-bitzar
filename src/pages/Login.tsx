@@ -22,7 +22,7 @@ const Login = () => {
         try {
             setLoading(true);
             await signInWithEmailAndPassword(auth, userEmail, userPassword);
-            toast.success('Usuário logado com sucesso!');
+            toast.success("Usuário logado com sucesso!");
             navigate("/teamregister");
         } catch (error){
             if (error instanceof FirebaseError) {
@@ -44,6 +44,7 @@ const Login = () => {
                     <form 
                         onSubmit={handleLogin}
                         className='flex flex-col w-full items-center space-y-6'>
+                            
                         <h1 className='w-fit font-bold text-black text-2xl'>
                             Login
                         </h1>

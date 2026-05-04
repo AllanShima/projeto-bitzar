@@ -5,19 +5,23 @@ import { CgTrash } from 'react-icons/cg';
 import { MdOutlineEdit } from 'react-icons/md';
 import { GoDotFill } from 'react-icons/go';
 import { IoDocumentTextOutline } from 'react-icons/io5';
-import type { User } from '@/interfaces/Interfaces';
+import type { TeamMember, User } from '@/interfaces/Interfaces';
 import UserSettingsModal from './UserSettingsModal';
 import UserDeleteModal from './UserDeleteModal';
 
 interface UserCardProps {
-    user: User
+    teammate?: TeamMember
 }
 
-const UserCard = ({user} : UserCardProps) => {
+const UserCard = ({teammate} : UserCardProps) => {
     const [userSettingsModal, setUserSettingsModal] = useState(false);
     const [userDeleteModal, setUserDeleteModal] = useState(false);
 
-    const username = user.firstName + " " + user.lastName;
+    const user = teammate?.user;
+
+    const statusCapitalized = teammate?.status == "admin" ? "Administrador" : "Participante";
+
+    const username = user?.firstName + " " + user?.lastName;
 
     return (
         <div className='flex w-full h-fit rounded-2xl p-5 mb-7 justify-between bg-white hover:shadow-lg transition'>
@@ -31,12 +35,11 @@ const UserCard = ({user} : UserCardProps) => {
                 {/* Main info */}
                 <div className='flex flex-col w-fit h-fit text-black space-y-2'>
                     <h2 className='font-medium text-xl'>{username}</h2>
-                    <p className='text-gray-800'>{user.email}</p>
+                    <p className='text-gray-800'>{user?.email}</p>
                     <span className='flex items-center space-x-4 text-gray-600 text-xs'>
-                        <p>Cadastrado em: {user.createdAt}</p>
-                        <GoDotFill className='w-1.5 h-1.5'/>0
-                         
-                        <p></p>
+                        <p>Cadastrado em: {user?.createdAt}</p>
+                        <GoDotFill className='w-1.5 h-1.5'/>
+                        <p>{statusCapitalized}</p>
                     </span>
                 </div>            
             </span>
@@ -58,10 +61,10 @@ const UserCard = ({user} : UserCardProps) => {
                 
             </div>
             <Dialog open={userSettingsModal} onClose={() => setUserSettingsModal(false)}>
-                <UserSettingsModal userInfo={user} setIsOpen={setUserSettingsModal}/>
+                <UserSettingsModal user={user} setIsOpen={setUserSettingsModal}/>
             </Dialog>
             <Dialog open={userDeleteModal} onClose={() => setUserDeleteModal(false)}>
-                <UserDeleteModal userUid={user.id} setIsOpen={setUserDeleteModal}/>
+                <UserDeleteModal user={user} setIsOpen={setUserDeleteModal}/>
             </Dialog>
 
             <Toaster/>

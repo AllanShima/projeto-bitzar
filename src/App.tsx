@@ -1,18 +1,14 @@
-import { APITester } from "./APITester";
 import "./index.css";
 import { createBrowserRouter, Navigate, Outlet } from "react-router"; // Criador de Router
 import { RouterProvider } from "react-router/dom"; // Renderizador
 import LandingPage from "./pages/LandingPage";
 import NotFoundPage from "./pages/NotFoundPage";
-import HomeHeader from "./pages/HomeHeader";
-import ChatPage from "./pages/ChatPage";
-import ArchivePage from "./pages/ArchivePage";
 import Login from "./pages/Login";
-import TeamInfoPage from "./pages/TeamPage";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import { Toaster } from "react-hot-toast";
 import TeamRegisterPage from "./pages/TeamRegisterPage";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 export function App() {
   
@@ -26,7 +22,10 @@ export function App() {
     },
     {
       path: '/home',
-      element: <Home/>,
+      element: 
+        <ProtectedRoute>
+          <Home/>
+        </ProtectedRoute>,
     },
     {
       path: '/login',
@@ -38,7 +37,10 @@ export function App() {
     },
     {
       path: '/teamregister',
-      element: <TeamRegisterPage/>
+      element:
+        <ProtectedRoute>
+          <TeamRegisterPage/>
+        </ProtectedRoute>,
     },
   ]);
 

@@ -5,11 +5,11 @@ import type { File } from '@/interfaces/Interfaces'
 import toast from 'react-hot-toast'
 
 interface FileModalProp {
-    fileInfo: File,
+    file: File,
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const FileSettingsModal = ({fileInfo, setIsOpen} : FileModalProp) => {
+const FileSettingsModal = ({file, setIsOpen} : FileModalProp) => {
     const [fileName, setFileName] = useState('');
     const [fileDesctiption, setFileDescription] = useState('');
 
@@ -39,13 +39,13 @@ const FileSettingsModal = ({fileInfo, setIsOpen} : FileModalProp) => {
                                 Nome do Arquivo
                             </label>
                             <div className='flex w-full h-9'>
-                                <UserInput state={fileName} setState={setFileName} placeholder={fileInfo.name}/>                                
+                                <UserInput state={fileName} setState={setFileName} placeholder={file.name}/>                                
                             </div>
                             <label className='text-black font-medium'>
                                 Descrição
                             </label>
                             <div className='flex w-full h-9'>
-                                <UserInput state={fileDesctiption} setState={setFileDescription} placeholder={fileInfo.description}/>                                
+                                <UserInput state={fileDesctiption} setState={setFileDescription} placeholder={file.description}/>                                
                             </div>
                         </div>
 

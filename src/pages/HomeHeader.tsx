@@ -20,6 +20,7 @@ interface HomeHeaderProps {
 
 const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
     const navigate = useNavigate();
+    const user = auth.currentUser;
 
     const handleLogout = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault(); // Opcional, mas evita comportamentos inesperados
@@ -35,45 +36,53 @@ const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
             }
         }
     };
+
     return (
         <nav className='flex w-full h-20 min-h-20 max-h-20 py-2.5 px-10 items-center bg-linear-to-r from-sky-500 to-fuchsia-500 shadow-lg'>
-            <div className='flex w-full h-full justify-between'>
-                {/* Logo */}
-                <div className='flex w-fit h-full items-center px-4 bg-white rounded-xl'>
-                    <h1 className='bg-linear-to-r from-sky-500 to-fuchsia-500 inline-block text-transparent bg-clip-text text-3xl font-bold'>
-                        DocPilot
-                    </h1>
+            <div className='flex w-full h-full justify-between items-center'>
+                <div className='flex w-fit h-full gap-3'>
+                    {/* Logo */}
+                    <div className='flex w-fit h-full items-center px-4 bg-white rounded-xl'>
+                        <h1 className='bg-linear-to-r from-sky-500 to-fuchsia-500 inline-block text-transparent bg-clip-text text-3xl font-bold'>
+                            DocPilot
+                        </h1>
+                    </div>
+
+                    {/* Tab buttons */}
+                    <div className='flex w-fit h-3/4 gap-1 my-auto'>
+                        <TabButton 
+                            onClick={() => setActiveTab('chat')} 
+                            isActive={activeTab === 'chat'}
+                            activeColor="text-sky-500" 
+                            label="Chat" 
+                            Icon={IoIosChatboxes}
+                        />
+                        <TabButton 
+                            onClick={() => setActiveTab('archive')} 
+                            isActive={activeTab === 'archive'}
+                            activeColor="text-fuchsia-500" 
+                            label="Arquivos" 
+                            Icon={FaFileAlt}
+                        />
+                        <TabButton 
+                            onClick={() => setActiveTab('info')} 
+                            isActive={activeTab === 'info'}
+                            activeColor="text-fuchsia-700" 
+                            label="Configurações" 
+                            Icon={RiTeamFill}
+                        />
+                    </div>                    
                 </div>
 
-                {/* Tab buttons */}
-                <div className='flex w-fit h-3/4 gap-1 my-auto'>
-                    <TabButton 
-                        onClick={() => setActiveTab('chat')} 
-                        isActive={activeTab === 'chat'}
-                        activeColor="text-sky-500" 
-                        label="Chat" 
-                        Icon={IoIosChatboxes}
-                    />
-                    <TabButton 
-                        onClick={() => setActiveTab('archive')} 
-                        isActive={activeTab === 'archive'}
-                        activeColor="text-fuchsia-500" 
-                        label="Arquivos" 
-                        Icon={FaFileAlt}
-                    />
-                    <TabButton 
-                        onClick={() => setActiveTab('info')} 
-                        isActive={activeTab === 'info'}
-                        activeColor="text-fuchsia-700" 
-                        label="Configurações" 
-                        Icon={RiTeamFill}
-                    />
-                </div>
+                <span className='w-fit h-fit px-3 py-1 rounded-2xl bg-purple-600 outline-1 text-white'>
+                    <p>[Nome do Grupo]</p>
+                </span>
+
                 <span className='flex gap-4'>
                     {/* User Type indicator */}
                     <div className='flex w-fit h-fit gap-2 my-auto'>
                         {/* Chat Tab button */}
-                        <UserStatusTag teamMember={}/>
+                        {/* <UserStatusTag teamMember={}/> */}
                     </div>
                     {/* Leave button */}
                     <div className='flex w-fit h-3/4 gap-1 my-auto'>
