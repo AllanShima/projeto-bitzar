@@ -74,7 +74,7 @@ const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
                     </div>                    
                 </div>
 
-                <span className='w-fit h-fit px-3 py-1 rounded-2xl bg-purple-600 outline-1 text-white'>
+                <span className='w-fit h-fit px-3 py-1 rounded-md bg-linear-to-r from-purple-500 to-purple-600 shadow-lg text-white'>
                     <p>[Nome do Grupo]</p>
                 </span>
 

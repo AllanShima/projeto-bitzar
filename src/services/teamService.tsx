@@ -4,13 +4,13 @@ import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc, g
 
 /**
  * @typedef {Object} Team
- * @property {string} id - O ID único do usuário no Firebase Auth.
- * @property {string} firstName - Primeiro nome.
- * @property {string} lastName - Sobrenome.
- * @property {string} email - Endereço de e-mail.
- * @property {number} code - Código da sala/grupo
- * @property {number} members - Todos os membros do grupo menos o dono
- * @property {number} createdAt - Data de criação do grupo
+ * @property {string} id? - O ID único do firebase do time.
+ * @property {string} title - Título do grupo
+ * @property {string} description - Descrição do grupo
+ * @property {string} code - Código da sala/grupo
+ * @property {number} ownerId? - Id do usuário dono do grupo
+ * @property {number} members? - Todos os membros do grupo menos o dono
+ * @property {number} createdAt? - Data de criação do grupo
  */
 
 // Referência da pasta

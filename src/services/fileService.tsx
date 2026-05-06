@@ -5,12 +5,15 @@ import { doc } from 'firebase/firestore/lite';
 
 // Comentários pra gerar documento em JSDoc
 /**
- * Retrieves a user by email.
- * @async
- * @param {string} email - The user's email address.
- * @returns {User} The user object.
- * @throws {NotFoundError} If the user is not found.
-*/
+ * @typedef {Object} File
+ * @property {string} id? - O ID único do firestore.
+ * @property {string} name - Nome do arquivo.
+ * @property {string} description - Descrição do arquivo.
+ * @property {string} fileAddress - Endereço do arquivo armazenado em firebase Storage
+ * @property {number} fileSize - Tamanho do arquivo em memória
+ * @property {number} uploadedBy - Usuário que criou o arquivo
+ * @property {number} createdAt - Data de criação do arquivo
+ */
 
 // Referência da pasta
 const fileRef = collection(db, 'teams', "files");
