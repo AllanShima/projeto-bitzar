@@ -7,9 +7,11 @@ import toast, { Toaster } from 'react-hot-toast';
 import UserInputLabel from '@/ui/UserInputLabel';
 import { useNavigate } from 'react-router';
 import { FirebaseError } from 'firebase/app';
+import { useCreateUser } from '@/hooks/useUsers';
 
 const Register = () => {
   const navigate = useNavigate();
+  const createUserMutation = useCreateUser(); // Prepara a criação
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -24,6 +26,11 @@ const Register = () => {
   const handleChange = (name: string, value: string) => {
     setFormData(prev => ({...prev, [name] : value}));
   }
+
+  const handleSave = async () => {
+    const { firstName, lastName, email, password } = formData;
+    createUserMutation.mutate({ firstName: firstName, lastName: lastName, email: email, password: password });
+  };
 
   const handleRegister = async (e : SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // Impede o reload da página
@@ -40,9 +47,13 @@ const Register = () => {
 
     try {
       setLoading(true);
+
       await createUserWithEmailAndPassword(auth, email, password);
-      toast.success('Usuário criado com sucesso!');
-      navigate("/home");
+      await handleSave(); // Salva os dados no banco
+
+      toast.success('Seja bem-vindo!');
+      navigate("/teamregister");
+      
     } catch (error) {
       if (error instanceof FirebaseError) {
         // Aqui o TS sabe que 'error' tem as propriedades 'code' e 'message'
@@ -98,7 +109,7 @@ const Register = () => {
                 </div>
             </div>
         </div>
-        <Toaster />
+        <Toaster/>
     </div>
   )
 }

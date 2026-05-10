@@ -17,7 +17,7 @@ bun start
 
 ---
 
-## Se for rodar o código, siga esses primeiros passos:
+## Se for rodar o código, siga esses passos:
 - Se n optar por usar bun: use 'npm install' msm
 - Verifique se há 'Bun' instalado no PC: "bun --version"
 - Se n, instale: "powershell -c "irm bun.sh/install.ps1 | iex"
@@ -41,6 +41,14 @@ bun start
 - npm install --save-dev jsdoc
 - bun install @tanstack/react-query
 
+- bun install @google/generative-ai
+- bun install ollama
+- bun install --save groq-sdk
+
+- bun install pdfjs-dist          Biblioteca pra ler pdfs no navegador
+
+- bun install react-markdown
+
 ---
 
 #### Arquitetura utilizada
@@ -55,6 +63,7 @@ src/
 │   ├── chat/        # LLM integration, Message components, Streaming logic
 │   └── dashboard/   # Data fetching, User stats
 ├── hooks/           # Global reusable hooks (e.g., useLocalStorage)
+├── interfaces/      # Global reusable modals
 ├── services/        # Firebase & API fetch wrappers (The "Data Layer")
 ├── ui/              # Generic Tailwind components (Buttons, Inputs, Modals)
 └── utils/           # Helper functions (Date formatting, String parsing)

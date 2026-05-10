@@ -25,6 +25,11 @@ export interface User {
   createdAt?: string
 }
 
+export interface TeamMember {
+  status: 'admin' | 'participant',
+  user?: User
+}
+
 export interface Team {
   id?: string,
   title: string,
@@ -32,10 +37,6 @@ export interface Team {
   code: string,
   ownerId?: string,
   members?: TeamMember[],
+  files?: File[],
   createdAt?: string,
-}
-
-export interface TeamMember {
-  status: 'admin' | 'participant',
-  user?: User
 }

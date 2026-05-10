@@ -19,7 +19,7 @@ const teamRef = collection(db, 'teams');
 export const teamService = {
 
   // Criar/Salvar novo usuário
-  async setTeam(teamData : Team) {
+  async saveTeam(teamData : Team) {
     // Gerando o Id
     const docRef = doc(teamRef);
     const documentId = docRef.id;
@@ -27,7 +27,11 @@ export const teamService = {
     return await addDoc(teamRef, 
       { 
         id: documentId, 
-        teamData: teamData,
+        title: teamData.title,
+        description: teamData.description,
+        code: teamData.code,
+        ownerId: teamData.ownerId,
+        members: [],
         createdAt: new Date() 
       }
     );
@@ -38,6 +42,24 @@ export const teamService = {
     const q = query(teamRef, where("ownerId", "==", ownerId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team & { id: string }));
+  },
+
+  // Leitura de todos os grupos disponíveis no banco
+  async getAllTeams() {
+    try {
+      // We pass the collection reference directly
+      const snapshot = await getDocs(teamRef);
+      
+      // Map through all documents found
+      return snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      } as Team & { id: string }));
+      
+    } catch (error) {
+      console.error("Error fetching all teams:", error);
+      throw error;
+    }
   },
   
   async updateTeamByOwnerId(ownerId : string,  newTeamData : Team) { // o usuário pode criar apenas um grupo

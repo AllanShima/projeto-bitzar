@@ -21,7 +21,7 @@ const TabButton = ({onClick, isActive, activeColor, label, Icon, size} : TabButt
     return (
         <button onClick={onClick}>
             <div className={`flex items-center w-full h-full rounded-xl p-3 transition font-medium cursor-default border-none ${getTabStyle(isActive)}`}>
-                <span className={`flex space-x-4 ${size === null ? "w-4.5 h-4.5" : `${size}`}`}>
+                <span className={`flex space-x-4 items-center ${size === null ? "w-4.5 h-4.5" : `${size}`}`}>
                     <Icon className='w-full h-full'/>
                     <p className='font-normal'>
                         {label}

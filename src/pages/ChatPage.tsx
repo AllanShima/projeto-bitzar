@@ -4,9 +4,13 @@ import { IoIosSend } from "react-icons/io";
 import toast, { Toaster } from 'react-hot-toast';
 import ChatBody from '@/ui/ChatBody';
 import type { Message } from '@/interfaces/Interfaces';
-import { IoReload } from "react-icons/io5";
+import { useGemini } from '@/features/chat/useGemini';
+import { HiDotsHorizontal } from "react-icons/hi";
+import { useOllama } from '@/features/chat/useOllama';
+import { useGroq } from '@/features/chat/useGroq';
 
 const ChatPage = () => {
+  const { generate, loading, model } = useGroq();
 
   const [userText, setUserText] = useState("");
   const [containsText, setContainsText] = useState(false);
@@ -31,29 +35,31 @@ const ChatPage = () => {
       createdAt: new Date()
     }
     setMessages((prev) => [...prev, newUserMessage]);
+    const tempUserText = userText;
     setUserText("");
-    setContainsText(false);
     setLoadingResponse(true);
 
     try {
       // Gera a resposta da IA e retorna
-      // const aiResponse = await getAiResponse(userText);
+      const aiResponse = await generate(tempUserText);
 
-      // const newAiResponse: Message = {
-      //   role: 'ai',
-      //   content: aiResponse
-      // }
-      // setMessages((prev) => [...prev, newAiResponse]);
-      // Salvando a mensagem do usuário somente se resposta der certo
+      const newAIMessage: Message = {
+        role: 'ai',
+        content: aiResponse!,
+        createdAt: new Date()
+      }
+      setMessages((prev) => [...prev, newAIMessage]);
+      // Salvando a mensagem do usuário no banco somente se resposta der certo
       // postChatMessage(newUserMessage);
       // postChatMessage(newAiResponse);
-      toast.success("Resposta gerada com sucesso!!!");
+
     } catch (error : unknown){
       if (error instanceof Error) {
         toast.error(error.message);
       }
     } finally {
       setLoadingResponse(false);
+      setContainsText(false);
     }
   }
 
@@ -74,7 +80,7 @@ const ChatPage = () => {
             </h2>
           </span>
           <p className='font-light'>
-            Modelo de IA Generativa: Llama
+            Modelo de IA Generativa: {model}
           </p>
         </div>
         {/* Corpo Interno */}
@@ -88,7 +94,7 @@ const ChatPage = () => {
               value={userText}
               onChange={(e) => {
                 setUserText(e.target.value); 
-                if (e.target.value.length > 0 && !(e.target.value.trim() == "") && !loadingResponse) {
+                if (e.target.value.length > 0 && !(e.target.value.trim() == "")) {
                   setContainsText(true);
                 } else setContainsText(false);
               }} 
@@ -97,8 +103,9 @@ const ChatPage = () => {
             {/* Botão de enviar mensagem */}
             <button 
               type='submit'
-              className={`flex w-fit h-full p-4 items-center justify-center rounded-2xl ${getButtonStyle(containsText)}`}>
-              {loadingResponse ? (<IoReload className='w-6 h-6'/>) : (<IoIosSend className='w-6 h-6'/>)}
+              disabled={loadingResponse || !containsText}
+              className={`flex w-fit h-full p-4 items-center justify-center rounded-2xl ${getButtonStyle((containsText) || (loadingResponse))}`}>
+              {loadingResponse ? (<HiDotsHorizontal className='w-6 h-6'/>) : (<IoIosSend className='w-6 h-6'/>)}
             </button>            
           </span>
 

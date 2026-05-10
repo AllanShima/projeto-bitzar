@@ -26,7 +26,6 @@ const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
         e.preventDefault(); // Opcional, mas evita comportamentos inesperados
         try {
             await signOut(auth);
-            toast.success("Usuário deconectado com sucesso!");
             // onAuthStateChanged cuidaria do redirecionamente automaticamente
             navigate("/login");
         } catch (error) {
@@ -49,7 +48,7 @@ const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
                     </div>
 
                     {/* Tab buttons */}
-                    <div className='flex w-fit h-3/4 gap-1 my-auto'>
+                    <div className='flex w-fit h-3/4 gap-2 my-auto'>
                         <TabButton 
                             onClick={() => setActiveTab('chat')} 
                             isActive={activeTab === 'chat'}

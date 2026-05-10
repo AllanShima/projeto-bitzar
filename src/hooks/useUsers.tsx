@@ -1,11 +1,34 @@
 import { db } from "@/config/firebase";
 import { useAuth } from "@/features/auth/AuthContext";
+import type { User } from "@/interfaces/Interfaces";
 import { userService } from "@/services/userService";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { doc, getDoc } from "firebase/firestore";
 
 // Usando TanStack Query (pra lidar com as funções assíncronas)
 // useQuery = fazer buscas
+// useMutation = manipulação (editar, criar, etc)
+
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (newUser : User) => userService.saveUser(newUser),
+    onSuccess: () => {
+      // Isso faz a mágica: ele avisa ao useUsers que os dados antigos 
+      // estragaram e força uma atualização automática!
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+}
+
+// const createUserMutation = useCreateUser(); // Prepara a criação
+
+// const handleSave = () => {
+//   createUserMutation.mutate({ name: "Novo PDF", content: "..." });
+// };
+
+// -----------------------------------------------------------
 
 export function useUser(userId : string) {
   // 'users' é a chave única do cache. Se mudar o fileId, ele busca de novo.

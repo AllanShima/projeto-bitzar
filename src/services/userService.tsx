@@ -1,6 +1,6 @@
 import type { User } from '@/interfaces/Interfaces';
 import { db } from '../config/firebase';
-import { collection, addDoc, getDocs, query, where, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
 
 /**
  * @typedef {Object} User
@@ -14,27 +14,28 @@ import { collection, addDoc, getDocs, query, where, doc } from 'firebase/firesto
  */
 
 // Referência da pasta
-const userRef = collection(db, 'teams', "users");
+const userRef = collection(db, "users");
 
 export const userService = {
 
-  // Criar/Salvar novo usuário
-  async setUser(userData : User) {
-    // Gerando o Id
-    const docRef = doc(userRef);
-    const documentId = docRef.id;
+// Criar/Salvar novo usuário
+  async saveUser(userData: User) {
+    // TIP: If you manually generate a docRef, use setDoc instead of addDoc.
+    // addDoc creates a SECOND random ID, which is likely not what you want.
+    const newDocRef = doc(userRef); 
+    
+    const userPayload = {
+      id: newDocRef.id, // The ID of the document itself
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      password: userData.password,
+      messages: [],
+      createdAt: new Date()
+    };
 
-    return await addDoc(userRef, 
-      { 
-        id: documentId, 
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        password: userData.password,
-        messages: [],
-        createdAt: new Date()
-      }
-    );
+    await setDoc(newDocRef, userPayload);
+    return userPayload;
   },
 
   // Leitura do arquivo por id

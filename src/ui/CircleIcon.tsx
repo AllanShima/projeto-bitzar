@@ -3,7 +3,7 @@ import React from 'react'
 import { RiRobot2Line } from "react-icons/ri";
 
 interface CircleIconProps {
-    role: string
+    role: 'user' | 'ai'
 }
 
 const CircleIcon = ({role} : CircleIconProps) => {
