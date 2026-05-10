@@ -4,8 +4,9 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 // Configuração do worker do PDF.js (necessário para funcionar no browser)
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+const API_KEY = process.env.VITE_GROQ_API_KEY || "";
 
-const groq = new Groq({ dangerouslyAllowBrowser:true, apiKey: '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' });
+const groq = new Groq({ dangerouslyAllowBrowser:true, apiKey: API_KEY });
 const model = "qwen/qwen3-32b";
 
 export function useGroq() {
