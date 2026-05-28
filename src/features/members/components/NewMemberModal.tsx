@@ -2,18 +2,27 @@ import { DialogBackdrop, DialogPanel } from '@headlessui/react'
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import UserInput from '../../../ui/UserInput'
 import toast from 'react-hot-toast'
+import { useNewMemberActions } from '../hooks/useNewMemberActions'
+import type { User } from '@/interfaces/Interfaces'
 
 interface NewMemberProp {
-    teamId: string | undefined,
+    authUser: User,
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
 
-const NewMemberModal = ({teamId, setIsOpen} : NewMemberProp) => {
+const NewMemberModal = ({authUser, setIsOpen} : NewMemberProp) => {
+    const { handleNewMember, loading } = useNewMemberActions();
     const [userEmail, setUserEmail] = useState('');
-    const handleClick = () => {
+
+    const handleClick = async () => {
+
         try {
-            
+            const teamId = authUser.teamLoggedIn?.id;
+            if (!teamId) {
+                throw new Error("Nenhum time/grupo encontrado??");
+            }
+            await handleNewMember(teamId, userEmail);
             setIsOpen(false)
         } catch (error) {
             toast.error(String(error));
@@ -53,10 +62,11 @@ const NewMemberModal = ({teamId, setIsOpen} : NewMemberProp) => {
                                 Cancelar
                             </button>
                             <button 
+                                disabled={loading}
                                 onClick={() => handleClick()}
                                 className='bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition rounded-lg px-6 py-2 text-white font-medium'
                             >
-                                Adicionar
+                                {loading ? "Carregando..." : "Criar"}
                             </button>
                         </div>
                     </fieldset>

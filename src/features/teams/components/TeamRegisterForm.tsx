@@ -64,7 +64,7 @@ const TeamRegisterForm = () => {
           <p className='text-gray-600 font-light text-sm'>
               Ou se não cadastrou ainda
           </p>
-          <a 
+          <a
             href="/register"
             className='text-purple-900 font-semibold'
           >

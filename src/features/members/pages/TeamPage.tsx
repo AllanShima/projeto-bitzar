@@ -76,7 +76,7 @@ const TeamPage = ({authUser}: TeamPageProps) => {
         </div>
       </div>
       <Dialog open={newMemberModal} onClose={() => setNewMemberModal(false)}>
-        <NewMemberModal teamId={teamLoggedIn.id} setIsOpen={setNewMemberModal}/>
+        <NewMemberModal authUser={authUser} setIsOpen={setNewMemberModal}/>
       </Dialog>
 
       <Toaster/>

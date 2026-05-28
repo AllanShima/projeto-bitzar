@@ -1,6 +1,5 @@
 import type { Team } from "@/interfaces/Interfaces";
 import { teamService } from "@/services/teamService";
-import { userService } from "@/services/userService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 // Usando TanStack Query (pra lidar com as funções assíncronas)
@@ -51,20 +50,24 @@ export function useTeams() {
 
 // -----------------------------------------------------------
 
+// Definimos o tipo dos parâmetros que a mutação vai receber
+interface UpdateTeamParams {
+  id: string;
+  updatedData: Partial<Team>; // Partial permite passar apenas os campos que mudaram
+}
+
+
 export function useUpdateTeam() {
   const queryClient = useQueryClient();
   
   return useMutation({
     // Recebe o ID e os dados, e repassa para o seu serviço
-    mutationFn: ({ id, updatedData }: UpdateUserParams) => 
-      userService.updateUserById(id, updatedData),
+    mutationFn: ({ id, updatedData }: UpdateTeamParams) => 
+      teamService.updateTeamById(id, updatedData),
     
     onSuccess: () => {
       // Invalida a lista de usuários para renderizar o dado atualizado na tela
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      
-      // Opcional: Se você tiver um queryKey específico para um usuário (ex: ['user', id])
-      // você também pode invalidá-lo aqui se necessário.
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
     },
   });
 }

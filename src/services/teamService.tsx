@@ -1,6 +1,6 @@
 import type { Team, TeamMember, User } from '@/interfaces/Interfaces';
 import { db } from '../config/firebase';
-import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc, getDoc, setDoc } from 'firebase/firestore';
 
 /**
  * @typedef {Object} Team
@@ -18,29 +18,37 @@ const teamRef = collection(db, 'teams');
 
 export const teamService = {
 
-  // Criar/Salvar novo usuário
+  // Criar/Salvar time/grupo
   async saveTeam(teamData : Team) {
     // Gerando o Id
     const docRef = doc(teamRef);
     const documentId = docRef.id;
 
-    return await addDoc(teamRef, 
-      { 
-        id: documentId, 
-        title: teamData.title,
-        description: teamData.description,
-        code: teamData.code,
-        ownerId: teamData.ownerId,
-        members: [],
-        files: [],
-        createdAt: new Date() 
-      }
-    );
+    const teamPayload = { 
+      id: documentId, // ID "A"
+      title: teamData.title,
+      description: teamData.description,
+      code: teamData.code,
+      ownerId: teamData.ownerId,
+      members: [],
+      files: [],
+      createdAt: new Date() 
+    };
+    await setDoc(docRef, teamPayload);
+
+    return teamPayload;
   },
 
   // Leitura do arquivo por id do dono do grupo
   async getTeamByOwnerId(ownerId : string) {
     const q = query(teamRef, where("ownerId", "==", ownerId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
+  },
+
+  // Leitura do arquivo por id do grupo
+  async getTeamById(teamId : string) {
+    const q = query(teamRef, where("id", "==", teamId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
   },
@@ -63,22 +71,42 @@ export const teamService = {
     }
   },
   
-  async updateTeamByOwnerId(ownerId : string,  newTeamData : Team) { // o usuário pode criar apenas um grupo
-    const teams = await this.getTeamByOwnerId(ownerId); // retorna uma lista de times
+  // async updateTeamByOwnerId(teamId : string,  newTeamData : Team) { // o usuário pode criar apenas um grupo
+  //   const teams = await this.getTeamByOwnerId(ownerId); // retorna uma lista de times
+
+  //   const teamId = teams[0]?.id;
+
+  //   if (!teamId) {
+  //     throw new Error("Time não encontrado.");
+  //   }
+
+  //   const teamDocRef = doc(db, 'teams', teamId)
+  //   await updateDoc(teamDocRef, {
+  //     title: newTeamData.title,
+  //     description: newTeamData.description,
+  //     code: newTeamData.code,
+  //     members: newTeamData.members,
+  //   });
+  // },
+
+  async updateTeamById(ownerId : string,  newTeamData : Partial<Team>) {
+    const teams = await this.getTeamById(ownerId); // retorna uma lista de times
 
     const teamId = teams[0]?.id;
 
-    if (!teamId) {
-      throw new Error("Time não encontrado.");
-    }
+    try {
+      if (!teamId) {
+        throw new Error("Time não encontrado.");
+      }
 
-    const teamDocRef = doc(db, 'teams', teamId)
-    await updateDoc(teamDocRef, {
-      title: newTeamData.title,
-      description: newTeamData.description,
-      code: newTeamData.code,
-      members: newTeamData.members,
-    });
+      const teamRef = doc(db, 'teams', teamId);
+
+      await updateDoc(teamRef, newTeamData);
+      return true;      
+    } catch (error) {
+      console.error("Erro CRÍTICO dentro do updateUserById:", error);
+      throw error; 
+    }
   },
 
   async updateStatusByOwnerId(ownerId : string, targetUserId : string, newStatus: 'admin' | 'participant') {

@@ -75,11 +75,10 @@ export const userService = {
       }
 
       const userRef = doc(db, 'users', userId);
-      // Diagnóstico 2: Tentar rodar o update
+      
       await updateDoc(userRef, newUserData);
       return true;
     } catch (error) {
-      // 🔥 ISSO AQUI VAI TE DIZER O MOTIVO REAL
       console.error("Erro CRÍTICO dentro do updateUserById:", error);
       throw error; 
     }

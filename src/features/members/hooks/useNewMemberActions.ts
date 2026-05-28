@@ -1,55 +1,52 @@
 import { useState } from 'react';
-import { useUpdateUser } from '@/hooks/usersQuery';
+import { useUpdateUser, useUsers } from '@/hooks/usersQuery';
 import type { Message, TeamMember } from '@/interfaces/Interfaces';
 import { arrayUnion } from 'firebase/firestore';
+import { useUpdateTeam } from '@/hooks/teamQuery';
 
-export const useNewMemberActions = (userId: string) => {
-  const updateUserMutation = useUpdateUser();
+export const useNewMemberActions = () => {
+  const updateTeamMutation = useUpdateTeam();
+  const { data, isLoading, error } = useUsers()
+
   const [loading, setLoading] = useState(false);
 
-  const handleNewMember = async (email: string) => {
+  const handleNewMember = async (teamId: string, email: string) => {
     try {
-      if (loadingModel) throw new Error("O modelo de IA ainda está carregando!");
+        setLoading(true);
 
-      setLoading(true);
+        if (isLoading) {
+            throw new Error("Usuários ainda carregando!");
+        }
 
-      const newUserMessage: Message = {
-        role: 'user',
-        content: userText,
-        createdAt: new Date(),
-      };
+        const foundUser = data?.find((u) => u.email == email);
 
-      // 1. Gera a resposta da IA
-      const aiResponse = await generate(userText);
+        if (!foundUser) {
+            throw new Error("Nenhum usuário com o email correspondente!");
+        }
 
-      const newAIMessage: Message = {
-        role: 'ai',
-        content: aiResponse || "Desculpe, não consegui processar sua resposta.",
-        createdAt: new Date(),
-      };
+        const newTeamMember: TeamMember = {
+            status: 'participant',
+            user: foundUser
+        };
 
-      // 2. Salva ambas as mensagens no Firebase usando mutateAsync de forma sequencial
-      // (Supondo que seu service use arrayUnion ou salve o payload completo ajustado)
-      await handleUpdate(newUserMessage);
-      await handleUpdate(newAIMessage);
+        await handleUpdate(teamId, newTeamMember);
 
-      // Retorna as duas novas mensagens para a tela se atualizar sozinha
-      return { newUserMessage, newAIMessage };
     } catch (error: unknown) {
-      throw error;
+        throw error;
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
-    const handleUpdate = async (member: TeamMember) => {
-        await updateUserMutation.mutateAsync({
-            id: userId,
+    // Salva os novos membros na lista de membros do time/grupo
+    const handleUpdate = async (teamId: string, member: TeamMember) => {
+        await updateTeamMutation.mutateAsync({
+            id: teamId,
             updatedData: {
-                messages: arrayUnion(member) as any, 
+                members: arrayUnion(member) as any, 
             },
         });
     };
 
-  return { handleTextSubmit, loading, handleUpdate, model };
+  return { handleNewMember, loading };
 };

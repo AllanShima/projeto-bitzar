@@ -20,7 +20,6 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
 
   const { handleTextSubmit, loading: loadingResponse, handleUpdate, model } = useTextSubmitActions(authUser.id!);
 
-  // ✅ CORREÇÃO 1: Mensagem inicial controlada por useEffect de forma segura
   useEffect(() => {
     if (messages.length === 0) {
       const starterAIMessage: Message = {
@@ -49,7 +48,6 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
     setContainsText(false);
 
     try {
-      // ✅ CORREÇÃO 2: Aguarda o processo da IA terminar
       const result = await handleTextSubmit(userText);
       
       if (result) {
@@ -57,8 +55,7 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
         setMessages((prev) => [...prev, result.newAIMessage]);
       }
     } catch (error: unknown) {
-      toast.error("Erro ao obter resposta da IA.");
-      console.error(error);
+      toast.error(String(error));
     }
   };
 
