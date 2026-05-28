@@ -8,31 +8,39 @@ import UploadFileModal from '@/ui/UploadFileModal';
 import toast, { Toaster } from 'react-hot-toast';
 import { DiVim } from 'react-icons/di';
 import { Files } from '@/assets/MockupData';
-import type { File } from '@/interfaces/Interfaces';
+import type { File, User } from '@/interfaces/Interfaces';
 
-const ArchivePage = () => {
+interface ArchivePageProps {
+  authUser: User
+}
 
-// import { useQuery } from '@tanstack/react-query';
+const ArchivePage = ({authUser}: ArchivePageProps) => {
 
-// function ArchivePage() {
-//   // 'files' is the key for caching. 
-//   // fetchFiles is just your standard fetch() function.
-//   const { data, isLoading, error } = useQuery({ 
-//     queryKey: ['files'], 
-//     queryFn: fetchFiles 
-//   });
+  // import { useQuery } from '@tanstack/react-query';
 
-//   if (isLoading) return <div>Loading...</div>;
-//   if (error) return <div>Error loading files!</div>;
+  // function ArchivePage() {
+  //   // 'files' is the key for caching. 
+  //   // fetchFiles is just your standard fetch() function.
+  //   const { data, isLoading, error } = useQuery({ 
+  //     queryKey: ['files'], 
+  //     queryFn: fetchFiles 
+  //   });
 
-//   return (
-//     <div>
-//       {data.map(file => <FileCard key={file.id} file={file} />)}
-//     </div>
-//   );
-// }
+  //   if (isLoading) return <div>Loading...</div>;
+  //   if (error) return <div>Error loading files!</div>;
 
-  const [files, setFiles] = useState<File[]>(Files);
+  //   return (
+  //     <div>
+  //       {data.map(file => <FileCard key={file.id} file={file} />)}
+  //     </div>
+  //   );
+  // }
+
+  // dados mockpu
+  // const [files, setFiles] = useState<File[]>(Files);
+
+  const filesFromTeamLoggedIn = !authUser?.teamLoggedIn?.files ? [] : authUser.teamLoggedIn.files;
+  const [files, setFiles] = useState<File[]>(filesFromTeamLoggedIn);
 
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const [searchText, setSearchText] = useState("");

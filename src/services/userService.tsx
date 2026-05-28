@@ -1,6 +1,6 @@
 import type { User } from '@/interfaces/Interfaces';
 import { db } from '../config/firebase';
-import { collection, addDoc, getDocs, query, where, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, doc, setDoc, updateDoc } from 'firebase/firestore';
 
 /**
  * @typedef {Object} User
@@ -20,22 +20,44 @@ export const userService = {
 
 // Criar/Salvar novo usuário
   async saveUser(userData: User) {
-    // TIP: If you manually generate a docRef, use setDoc instead of addDoc.
-    // addDoc creates a SECOND random ID, which is likely not what you want.
-    const newDocRef = doc(userRef); 
-    
-    const userPayload = {
-      id: newDocRef.id, // The ID of the document itself
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      password: userData.password,
-      messages: [],
-      createdAt: new Date()
-    };
+    try {
+      if (!userData.id) {
+        throw new Error("Não é possível salvar o usuário sem um ID de autenticação válido.");
+      }
+      const newDocRef = doc(db, 'users', userData.id);
+      
+      const userPayload = {
+        id: userData.id, // id gerado pelo firebase auth
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,
+        messages: [],
+        teamLoggedIn: {},
+        createdAt: new Date()
+      };
 
-    await setDoc(newDocRef, userPayload);
-    return userPayload;
+      await setDoc(newDocRef, userPayload);
+      return userPayload;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getAllUsers() {
+    try {
+      // We pass the collection reference directly
+      const snapshot = await getDocs(userRef);
+      
+      // Map through all documents found
+      return snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      } as User & { id: string }));
+      
+    } catch (error) {
+      throw error;
+    }
   },
 
   // Leitura do arquivo por id
@@ -45,8 +67,22 @@ export const userService = {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
-  async updateUserById(userId : string, newUserData : User) {
+  async updateUserById(userId: string, newUserData: Partial<User>) {
 
+    try {
+      if (!userId) {
+        throw new Error("O userId veio vazio ou undefined!");
+      }
+
+      const userRef = doc(db, 'users', userId);
+      // Diagnóstico 2: Tentar rodar o update
+      await updateDoc(userRef, newUserData);
+      return true;
+    } catch (error) {
+      // 🔥 ISSO AQUI VAI TE DIZER O MOTIVO REAL
+      console.error("Erro CRÍTICO dentro do updateUserById:", error);
+      throw error; 
+    }
   },
 
   async deleteUserById(userId : string) {

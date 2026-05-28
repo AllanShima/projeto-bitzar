@@ -32,6 +32,7 @@ export const teamService = {
         code: teamData.code,
         ownerId: teamData.ownerId,
         members: [],
+        files: [],
         createdAt: new Date() 
       }
     );
@@ -41,7 +42,7 @@ export const teamService = {
   async getTeamByOwnerId(ownerId : string) {
     const q = query(teamRef, where("ownerId", "==", ownerId));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team & { id: string }));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Team));
   },
 
   // Leitura de todos os grupos disponíveis no banco

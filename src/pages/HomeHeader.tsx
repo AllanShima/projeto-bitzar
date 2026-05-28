@@ -12,28 +12,48 @@ import { FirebaseError } from 'firebase/app';
 import { MdExitToApp, MdOutlineGroupAdd } from "react-icons/md";
 import TabButton from '@/ui/TabButton';
 import UserStatusTag from '@/ui/UserStatusTag';
+import type { Team, User } from '@/interfaces/Interfaces';
+import { useUpdateUser } from '@/hooks/usersQuery';
 
 interface HomeHeaderProps {
+    authUser?: any
     activeTab: string,
     setActiveTab: Dispatch<SetStateAction<string>>
 }
 
-const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
+const HomeHeader = ({authUser, activeTab, setActiveTab} : HomeHeaderProps) => {
+    const updateUserMutation = useUpdateUser();
     const navigate = useNavigate();
-    const user = auth.currentUser;
+    const teamLoggedIn = authUser?.teamLoggedIn;
 
-    const handleLogout = async (e: MouseEvent<HTMLButtonElement>) => {
+    const handleLogoutUser = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault(); // Opcional, mas evita comportamentos inesperados
         try {
             await signOut(auth);
             // onAuthStateChanged cuidaria do redirecionamente automaticamente
             navigate("/login");
         } catch (error) {
-            console.error("Erro ao sair:", error);
-            if (error instanceof FirebaseError) {
-                toast.error(error.message);
-            }
+            toast.error(String(error));
         }
+    };
+
+    const handleLogoutGroup = async (e: MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        try {
+            await handleUpdate(authUser.id);
+            navigate('/teamregister')
+        } catch (error) {
+            toast.error(String(error));
+        }
+    }
+
+    const handleUpdate = async (userId: string) => {
+        updateUserMutation.mutate({
+        id: userId,
+        updatedData: { 
+            teamLoggedIn: null,
+        }
+        });
     };
 
     return (
@@ -74,7 +94,7 @@ const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
                 </div>
 
                 <span className='w-fit h-fit px-3 py-1 rounded-md bg-linear-to-r from-purple-500 to-purple-600 shadow-lg text-white'>
-                    <p>[Nome do Grupo]</p>
+                    <p>{teamLoggedIn?.title}</p>
                 </span>
 
                 <span className='flex gap-4'>
@@ -86,11 +106,11 @@ const HomeHeader = ({activeTab, setActiveTab} : HomeHeaderProps) => {
                     {/* Leave button */}
                     <div className='flex w-fit h-3/4 gap-1 my-auto'>
                         {/* Chat Tab button*/}
-                        <button onClick={() => {navigate("/teamregister")}} className='flex my-auto h-fit w-fit px-3 py-1 rounded-xl hover:bg-fuchsia-600 transition'>
+                        <button onClick={(e) => handleLogoutGroup(e)} className='flex my-auto h-fit w-fit px-3 py-1 rounded-xl hover:bg-fuchsia-600 transition'>
                             <MdOutlineGroupAdd className='my-auto mr-2 w-5 h-5'/>
                             Criar/Entrar Grupo
                         </button>
-                        <button onClick={(e) => handleLogout(e)} className='flex my-auto h-fit w-fit px-3 py-1 rounded-xl hover:bg-fuchsia-600 transition'>
+                        <button onClick={(e) => handleLogoutUser(e)} className='flex my-auto h-fit w-fit px-3 py-1 rounded-xl hover:bg-fuchsia-600 transition'>
                             <MdExitToApp className='my-auto mr-2 w-5 h-5'/>
                             Sair
                         </button>

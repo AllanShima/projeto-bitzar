@@ -7,7 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import UserInputLabel from '@/ui/UserInputLabel';
 import { useNavigate } from 'react-router';
 import { FirebaseError } from 'firebase/app';
-import { useCreateUser } from '@/hooks/useUsers';
+import { useCreateUser } from '@/hooks/usersQuery';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -27,9 +27,9 @@ const Register = () => {
     setFormData(prev => ({...prev, [name] : value}));
   }
 
-  const handleSave = async () => {
+  const handleSave = async (firebaseUid: string) => {
     const { firstName, lastName, email, password } = formData;
-    createUserMutation.mutate({ firstName: firstName, lastName: lastName, email: email, password: password });
+    createUserMutation.mutate({ id: firebaseUid, firstName: firstName, lastName: lastName, email: email, password: password });
   };
 
   const handleRegister = async (e : SubmitEvent<HTMLFormElement>) => {
@@ -48,11 +48,17 @@ const Register = () => {
     try {
       setLoading(true);
 
-      await createUserWithEmailAndPassword(auth, email, password);
-      await handleSave(); // Salva os dados no banco
+      // 1. Captura o resultado da criação da conta
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // 2. Extrai o uid (ID do usuário) de dentro do resultado
+      const firebaseUid = userCredential.user.uid;
 
-      toast.success('Seja bem-vindo!');
-      navigate("/teamregister");
+      // 3. Passa o ID obtido para a sua função handleSave
+      await handleSave(firebaseUid);
+
+      toast.success('Cadastrado com sucesso!');
+      navigate("/login");
       
     } catch (error) {
       if (error instanceof FirebaseError) {

@@ -1,31 +1,15 @@
 import { useState } from 'react';
 import Groq from "groq-sdk";
-import * as pdfjsLib from 'pdfjs-dist';
 
-// Configuração do worker do PDF.js (necessário para funcionar no browser)
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-const API_KEY = process.env.VITE_GROQ_API_KEY || "";
+
+
+const API_KEY = import.meta.env?.VITE_GROQ_API_KEY || "";
 
 const groq = new Groq({ dangerouslyAllowBrowser:true, apiKey: API_KEY });
 const model = "qwen/qwen3-32b";
 
 export function useGroq() {
     const [loading, setLoading] = useState(false);
-
-    // Função para extrair texto do PDF
-    const extractTextFromPDF = async (file: File): Promise<string> => {
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        let fullText = "";
-
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items.map((item: any) => item.str).join(" ");
-            fullText += pageText + "\n";
-        }
-        return fullText;
-    };
 
     const generate = async (input: string) => {
         setLoading(true);
@@ -54,18 +38,13 @@ export function useGroq() {
     const generateWithPDF = async (input: string, pdfFile?: File) => {
         setLoading(true);
         try {
-            let context = "";
-            if (pdfFile) {
-                const pdfText = await extractTextFromPDF(pdfFile);
-                // Criamos um contexto delimitado para o modelo não se perder
-                context = `Baseado no seguinte documento:\n\n"""\n${pdfText}\n"""\n\n Pergunta: `;
-            }
+            
 
             const response = await groq.chat.completions.create({
                 messages: [
                     {
                         role: "system",
-                        content: "Você é um assistente que analisa documentos para uma empresa de desenvolvimento de softwares. Responda de forma direta, sem as tags <think>."
+                        content: "Você é um assistente que analisa documentos para uma empresa de desenvolvimento de softwares chamada 'Bitzar'. Responda de forma direta, sem as tags <think>."
                     },
                     {
                         role: "user",

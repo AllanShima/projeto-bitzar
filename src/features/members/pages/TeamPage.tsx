@@ -3,17 +3,26 @@ import UploadFileModal from '@/ui/UploadFileModal'
 import UserCard from '@/ui/UserCard'
 import UserInput from '@/ui/UserInput'
 import { Dialog } from '@headlessui/react'
-import type { User } from 'firebase/auth'
 import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { IoSearch } from 'react-icons/io5'
 import { Teams, Users } from '@/assets/MockupData';
-import type { Team } from '@/interfaces/Interfaces'
+import type { Team, User } from '@/interfaces/Interfaces'
 import { FaUserPlus } from 'react-icons/fa'
-import NewMemberModal from '@/ui/NewMemberModal'
+import NewMemberModal from '@/features/members/components/NewMemberModal'
 
-const TeamPage = () => {
-  const [team, setTeam] = useState<Team>(Teams[0]!);
+interface TeamPageProps {
+  authUser: User
+}
+
+const TeamPage = ({authUser}: TeamPageProps) => {
+  // mockup
+  // const [team, setTeam] = useState<Team>(Teams[0]!);
+
+  // Se não tem time, deixa como vazio...
+  const teamLoggedIn = !authUser?.teamLoggedIn ? {} as Team : authUser.teamLoggedIn;
+  const [team, setTeam] = useState<Team>(teamLoggedIn);
+  const teamMembers = !team?.members ? [] : team.members;
 
   const [newMemberModal, setNewMemberModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -57,7 +66,7 @@ const TeamPage = () => {
 
       <div className='flex flex-col w-full h-full bg-transparent overflow-y-auto'>
         <div className='flex flex-col w-full h-full px-7'>
-          {team.members?.map((teammate) => (
+          {teamMembers.map((teammate) => (
             <div key={teammate.user?.id}>
               <UserCard teammate={teammate}/>              
             </div>
@@ -67,7 +76,7 @@ const TeamPage = () => {
         </div>
       </div>
       <Dialog open={newMemberModal} onClose={() => setNewMemberModal(false)}>
-        <NewMemberModal setIsOpen={setNewMemberModal}/>
+        <NewMemberModal teamId={teamLoggedIn.id} setIsOpen={setNewMemberModal}/>
       </Dialog>
 
       <Toaster/>

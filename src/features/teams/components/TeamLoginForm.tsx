@@ -1,11 +1,13 @@
 import UserInputLabel from '@/ui/UserInputLabel';
 import React, { useState, type SubmitEvent } from 'react'
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { MdOutlinePassword } from 'react-icons/md';
 import { useTeamLoginActions } from '../hooks/useTeamLoginActions';
+import { useNavigate } from 'react-router';
 
-const LoginForm = () => {
-  const { handleLoginLogic, loading } = useTeamLoginActions();
+const TeamLoginForm = () => {
+  const navigate = useNavigate();
+  const { handleTeamLogin, loading } = useTeamLoginActions();
   const [enterCode, setEnterCode] = useState('');
 
   const handleLogin = async (e : SubmitEvent<HTMLFormElement>) => {
@@ -16,7 +18,9 @@ const LoginForm = () => {
     }
 
     try {
-      await handleLoginLogic(enterCode);
+      const loggedTeam = await handleTeamLogin(enterCode);
+      navigate('/home', { state: { justLoggedInTeam: loggedTeam } });
+      
     } catch (error) {
       toast.error(String(error))
     }
@@ -36,12 +40,13 @@ const LoginForm = () => {
           type='submit'
           disabled={loading}
           className='flex justify-center w-full h-fit py-2 text-white font-medium bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition disabled:opacity-50 rounded-full'>
-              {loading ? "Carregando..." : "Entrar"}
+            {loading ? "Carregando..." : "Entrar"}
           </button>                        
         </form>
       </fieldset>
+      <Toaster/>
     </div>
   )
 }
 
-export default LoginForm
+export default TeamLoginForm

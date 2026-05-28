@@ -1,16 +1,23 @@
 import { DialogBackdrop, DialogPanel } from '@headlessui/react'
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
-import UserInput from './UserInput'
+import UserInput from '../../../ui/UserInput'
+import toast from 'react-hot-toast'
 
 interface NewMemberProp {
+    teamId: string | undefined,
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
 
-const NewMemberModal = ({setIsOpen} : NewMemberProp) => {
+const NewMemberModal = ({teamId, setIsOpen} : NewMemberProp) => {
     const [userEmail, setUserEmail] = useState('');
-    const handleNewUser = () => {
-
+    const handleClick = () => {
+        try {
+            
+            setIsOpen(false)
+        } catch (error) {
+            toast.error(String(error));
+        } 
     }
     return (
         <>
@@ -46,7 +53,7 @@ const NewMemberModal = ({setIsOpen} : NewMemberProp) => {
                                 Cancelar
                             </button>
                             <button 
-                                onClick={() => handleNewUser()}
+                                onClick={() => handleClick()}
                                 className='bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition rounded-lg px-6 py-2 text-white font-medium'
                             >
                                 Adicionar

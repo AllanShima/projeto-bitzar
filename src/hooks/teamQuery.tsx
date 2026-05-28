@@ -26,8 +26,7 @@ export function useCreateTeam() {
 //   createTeamMutation.mutate({ name: "Novo PDF", content: "..." });
 // };
 
-export function useTeam(ownerId? : string) {
-  // 'files' é a chave única do cache. Se mudar o fileId, ele busca de novo.
+export function useTeamById(ownerId? : string) {
   return useQuery({
     queryKey: ['teams', ownerId],
     queryFn: () => teamService.getTeamByOwnerId(ownerId!), // Use ! only because 'enabled' ensures it's there
@@ -49,3 +48,23 @@ export function useTeams() {
 
 // No componente...
 // const { data, isLoading, error } = useTeams();
+
+// -----------------------------------------------------------
+
+export function useUpdateTeam() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    // Recebe o ID e os dados, e repassa para o seu serviço
+    mutationFn: ({ id, updatedData }: UpdateUserParams) => 
+      userService.updateUserById(id, updatedData),
+    
+    onSuccess: () => {
+      // Invalida a lista de usuários para renderizar o dado atualizado na tela
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      
+      // Opcional: Se você tiver um queryKey específico para um usuário (ex: ['user', id])
+      // você também pode invalidá-lo aqui se necessário.
+    },
+  });
+}

@@ -1,20 +1,29 @@
-/**
- * This file is the entry point for the React app, it sets up the root
- * element and renders the App component to the DOM.
- *
- * It is included in `src/index.html`.
- */
-
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import { AuthProvider } from "./features/auth/AuthContext";
 
+// IMPORTANTE: Buscamos o QueryClient direto da fonte (core) 
+// e o Provider do pacote React.
+import { QueryClient } from "@tanstack/query-core";
+import { QueryClientProvider } from "@tanstack/react-query";
+
+// Agora sim, temos o construtor real!
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
 function start() {
   const root = createRoot(document.getElementById("root")!);
   root.render(
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <App />        
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

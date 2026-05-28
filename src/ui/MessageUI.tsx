@@ -1,7 +1,6 @@
 import type { Message } from '@/interfaces/Interfaces'
 import React from 'react'
 import CircleIcon from './CircleIcon'
-import { useGemini } from '@/features/chat/useGemini'
 import ReactMarkdown from 'react-markdown';
 
 interface MessageProps {
@@ -11,19 +10,34 @@ interface MessageProps {
 const MessageUI = ({message} : MessageProps) => {
 
   const handleCreationDate = (msg: Message) => {
-    if (msg.createdAt !== null) {
-        const hours = String(msg.createdAt?.getHours()).padStart(2, '0');
-        const minutes = String(msg.createdAt?.getMinutes()).padStart(2, '0');
-        return hours + ":" + minutes;
-    } else{
-        return "undefined"
+    if (!msg.createdAt) return "00:00";
+
+    let date: Date;
+
+    // 1. Checa se o objeto de data possui o método '.toDate' vindo do Firebase Timestamp
+    if (typeof (msg.createdAt as any).toDate === 'function') {
+      date = (msg.createdAt as any).toDate();
+    } 
+    // 2. Se já for uma instância de Date nativa do JavaScript
+    else if (msg.createdAt instanceof Date) {
+      date = msg.createdAt;
+    } 
+    // 3. Caso seja uma string ou qualquer outra estrutura de data válida
+    else {
+      date = new Date(msg.createdAt as any);
     }
-  }
+
+    // Agora que garantimos que 'date' é um objeto Date nativo, formatamos as horas com segurança!
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${hours}:${minutes}`;
+  };
 
   const handleBubbleStyle = (role : string) => {
-      return role === "user" 
-      ? "bg-linear-to-r from-blue-500 to-blue-600 text-white" 
-      : "bg-linear-to-r from-blue-50 to-fuchsia-50 outline-1 outline-gray-200 text-black";
+    return role === "user" 
+    ? "bg-linear-to-r from-blue-500 to-blue-600 text-white" 
+    : "bg-linear-to-r from-blue-50 to-fuchsia-50 outline-1 outline-gray-200 text-black";
   }
 
   return (

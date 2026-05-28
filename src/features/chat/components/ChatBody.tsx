@@ -1,9 +1,9 @@
 import type { Message } from '@/interfaces/Interfaces'
 import React, { useEffect } from 'react'
-import CircleIcon from './CircleIcon'
-import MessageUI from './MessageUI'
-import { useGemini } from '@/features/chat/useGemini'
-import GeneratingResponseUI from './GeneratingResponseUI'
+import CircleIcon from '../../../ui/CircleIcon'
+import MessageUI from '../../../ui/MessageUI'
+import { useGemini } from '@/features/chat/models/useGemini'
+import GeneratingResponseUI from '../../../ui/GeneratingResponseUI'
 
 interface ChatBodyProps {
     messages: Message[]

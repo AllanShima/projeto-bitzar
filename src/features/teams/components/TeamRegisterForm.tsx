@@ -4,9 +4,12 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import { MdOutlinePassword, MdSubtitles } from 'react-icons/md';
 import { useTeamRegisterActions } from '../hooks/useTeamRegisterActions';
+import { useTeamLoginActions } from '../hooks/useTeamLoginActions';
 
-const RegisterForm = () => {
-  const { handleTeamRegister, loading } = useTeamRegisterActions();
+const TeamRegisterForm = () => {
+  const { handleTeamRegister } = useTeamRegisterActions();
+  const { handleTeamLogin } = useTeamLoginActions();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const [registerData, setRegisterData] = useState({
@@ -23,10 +26,13 @@ const RegisterForm = () => {
     }
     
     try {
+      setLoading(true);
       await handleTeamRegister(registerData.title, registerData.description, registerData.code);
-      navigate("/home");
+      toast.success("Criado com sucesso!");
     } catch (error){
       toast.error(String(error));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -70,4 +76,4 @@ const RegisterForm = () => {
   )
 }
 
-export default RegisterForm
+export default TeamRegisterForm

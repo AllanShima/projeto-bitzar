@@ -104,7 +104,7 @@ export const Teams: Team[] = [
         title: "Setor de Desenvolvimento Front-end",
         description: "Chatbot com suporte a documentos front-end da empresa",
         code: "chave1",
-        owner: Users[1],
+        ownerId: Users[1]?.id,
         members: TeamMembers,
         createdAt: "09/07/2025"
     }

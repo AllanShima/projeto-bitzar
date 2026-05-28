@@ -1,5 +1,4 @@
 export interface Message {
-  id?: string,
   role: 'user' | 'ai';
   content: string;
   createdAt?: Date;
@@ -22,6 +21,7 @@ export interface User {
   email: string,
   password: string,
   messages?: Message[],
+  teamLoggedIn?: Team | null,
   createdAt?: string
 }
 
