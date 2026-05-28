@@ -58,11 +58,13 @@ export const teamService = {
     try {
       // We pass the collection reference directly
       const snapshot = await getDocs(teamRef);
-      
+
       // Map through all documents found
       return snapshot.docs.map(doc => ({ 
         id: doc.id, 
-        ...doc.data() 
+        ...doc.data(),
+        // ✅ Converte o timestamp para String no exato momento em que lê do banco
+        createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate().toISOString() : doc.data().createdAt
       } as Team & { id: string }));
       
     } catch (error) {

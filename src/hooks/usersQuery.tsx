@@ -69,7 +69,6 @@ interface UpdateUserParams {
 
 export function useUpdateUser() {
   const queryClient = useQueryClient();
-  
 
   return useMutation({
     // Recebe o ID e os dados, e repassa para o seu serviço

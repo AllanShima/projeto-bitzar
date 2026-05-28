@@ -1,28 +1,33 @@
 import { DialogBackdrop, DialogPanel } from '@headlessui/react'
-import React, { useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useState, type Dispatch, type SetStateAction, type SubmitEvent } from 'react'
 import UserInput from '../../../ui/UserInput'
 import toast from 'react-hot-toast'
 import { useNewMemberActions } from '../hooks/useNewMemberActions'
 import type { User } from '@/interfaces/Interfaces'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface NewMemberProp {
     authUser: User,
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-
 const NewMemberModal = ({authUser, setIsOpen} : NewMemberProp) => {
     const { handleNewMember, loading } = useNewMemberActions();
     const [userEmail, setUserEmail] = useState('');
+    const queryClient = useQueryClient();
 
     const handleClick = async () => {
-
         try {
-            const teamId = authUser.teamLoggedIn?.id;
-            if (!teamId) {
+            const team = authUser?.teamLoggedIn;
+            if (!team) {
                 throw new Error("Nenhum time/grupo encontrado??");
             }
-            await handleNewMember(teamId, userEmail);
+            await handleNewMember(team, userEmail);
+
+            // 👈 3. CORREÇÃO: Invalida a query que traz os dados do usuário autenticado.
+            // Substitua 'authUser' pela chave exata que você usou no hook do seu perfil/auth
+            await queryClient.invalidateQueries({ queryKey: ['users'] });
+
             setIsOpen(false)
         } catch (error) {
             toast.error(String(error));
@@ -56,15 +61,17 @@ const NewMemberModal = ({authUser, setIsOpen} : NewMemberProp) => {
 
                         <div className="flex gap-4 justify-end">
                             <button 
+                                type="button"
                                 onClick={() => setIsOpen(false)}
                                 className='bg-white hover:bg-gray-200 transition outline-1 outline-black/20 rounded-lg px-6 py-2'
                             >
                                 Cancelar
                             </button>
                             <button 
+                                type="button"
                                 disabled={loading}
                                 onClick={() => handleClick()}
-                                className='bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition rounded-lg px-6 py-2 text-white font-medium'
+                                className='w-40 bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition rounded-lg px-6 py-2 text-white font-medium'
                             >
                                 {loading ? "Carregando..." : "Criar"}
                             </button>

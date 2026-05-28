@@ -1,52 +1,59 @@
 import { useState } from 'react';
-import { useUpdateUser, useUsers } from '@/hooks/usersQuery';
-import type { Message, TeamMember } from '@/interfaces/Interfaces';
+import type { Team, TeamMember } from '@/interfaces/Interfaces';
 import { arrayUnion } from 'firebase/firestore';
 import { useUpdateTeam } from '@/hooks/teamQuery';
+import { userService } from '@/services/userService'; // Ajuste o caminho do seu service
 
 export const useNewMemberActions = () => {
   const updateTeamMutation = useUpdateTeam();
-  const { data, isLoading, error } = useUsers()
+  const [loading, setLoading] = useState(false); // ✅ Controle de loading local isolado
 
-  const [loading, setLoading] = useState(false);
-
-  const handleNewMember = async (teamId: string, email: string) => {
+  const handleNewMember = async (team: Team, email: string) => {
     try {
-        setLoading(true);
+      setLoading(true); // Ativa o loading apenas para este botão
 
-        if (isLoading) {
-            throw new Error("Usuários ainda carregando!");
-        }
+      // 1. Busca o usuário de forma isolada e cirúrgica por e-mail
+      const foundUser = await userService.getUserByEmail(email);
 
-        const foundUser = data?.find((u) => u.email == email);
+      if (!foundUser) {
+        throw new Error("Nenhum usuário cadastrado com esse e-mail!");
+      }
+      
+      if (foundUser.id === team.ownerId) {
+        throw new Error("Este usuário já é o dono do grupo!");
+      }
+      // Se já tiver um membro com o mesmo email que eu quero adicionar, esse usuário já está no grupo
+      const foundMember = team.members?.find((m) => m.user?.email == email)
+      
+      if (foundMember) {
+        throw new Error("Usuário já está no grupo/time!");
+      }
 
-        if (!foundUser) {
-            throw new Error("Nenhum usuário com o email correspondente!");
-        }
+      // Evitar duplicados locais (Opcional, mas bom)
+      const alreadyMember = team.members?.some(m => m.user?.id === foundUser.id);
+      if (alreadyMember) {
+        throw new Error("Este usuário já faz parte do grupo!");
+      }
 
-        const newTeamMember: TeamMember = {
-            status: 'participant',
-            user: foundUser
-        };
+      const newTeamMember: TeamMember = {
+        status: 'participant',
+        user: foundUser
+      };
 
-        await handleUpdate(teamId, newTeamMember);
+      // 2. Faz o update no Firebase
+      await updateTeamMutation.mutateAsync({
+        id: team.id!,
+        updatedData: {
+          members: arrayUnion(newTeamMember) as any, 
+        },
+      });
 
     } catch (error: unknown) {
-        throw error;
+      throw error;
     } finally {
-        setLoading(false);
+      setLoading(false); // Desativa o loading
     }
   };
-
-    // Salva os novos membros na lista de membros do time/grupo
-    const handleUpdate = async (teamId: string, member: TeamMember) => {
-        await updateTeamMutation.mutateAsync({
-            id: teamId,
-            updatedData: {
-                members: arrayUnion(member) as any, 
-            },
-        });
-    };
 
   return { handleNewMember, loading };
 };

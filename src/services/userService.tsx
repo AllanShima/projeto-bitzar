@@ -52,9 +52,36 @@ export const userService = {
       // Map through all documents found
       return snapshot.docs.map(doc => ({ 
         id: doc.id, 
-        ...doc.data() 
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate().toISOString() : doc.data().createdAt
       } as User & { id: string }));
       
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getUserByEmail(email: string) {
+    try {
+      const q = query(collection(db, 'users'), where('email', '==', email));
+      const snapshot = await getDocs(q);
+      
+      // 1. Se estiver vazio ou se por algum motivo bizarro o array docs não existir
+      if (snapshot.empty || !snapshot.docs || snapshot.docs.length === 0) {
+        return null;
+      }
+      
+      // 2. Pegamos o primeiro documento com segurança
+      const firstDoc = snapshot.docs[0];
+
+      // ✅ CORREÇÃO: Usamos uma checagem extra (ou encadeamento opcional) para garantir que o 'firstDoc' existe
+      if (!firstDoc) return null;
+      
+      return { 
+        id: firstDoc.id, 
+        ...firstDoc.data() 
+      } as User;
+
     } catch (error) {
       throw error;
     }

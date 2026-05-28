@@ -4,8 +4,13 @@ import toast, { Toaster } from 'react-hot-toast';
 import { MdOutlinePassword } from 'react-icons/md';
 import { useTeamLoginActions } from '../hooks/useTeamLoginActions';
 import { useNavigate } from 'react-router';
+import type { User } from '@/interfaces/Interfaces';
 
-const TeamLoginForm = () => {
+interface LoginFormProps {
+  authUser?: User | null
+}
+
+const TeamLoginForm = ({authUser} : LoginFormProps) => {
   const navigate = useNavigate();
   const { handleTeamLogin, loading } = useTeamLoginActions();
   const [enterCode, setEnterCode] = useState('');
@@ -18,7 +23,11 @@ const TeamLoginForm = () => {
     }
 
     try {
-      const loggedTeam = await handleTeamLogin(enterCode);
+      if (!authUser) {
+        throw new Error("Falha ao carregar usuário!")
+      }
+
+      const loggedTeam = await handleTeamLogin(authUser.id!, enterCode);
       navigate('/home', { state: { justLoggedInTeam: loggedTeam } });
       
     } catch (error) {

@@ -7,7 +7,6 @@ import type { Team } from '@/interfaces/Interfaces';
 
 export const useTeamLoginActions = () => {
   const [loading, setLoading] = useState(false);
-  const { user, loading: userLoading } = useAuth(); // Dados do usuário autenticado
   const updateUserMutation = useUpdateUser();
 
   const { 
@@ -16,26 +15,25 @@ export const useTeamLoginActions = () => {
     error: errorAll 
   } = useTeams();
 
-  const handleTeamLogin = async (enterCode: string) => {
+  const handleTeamLogin = async (userId: string, enterCode: string) => {
     try{
-
-    if (userLoading) {
-      throw new Error("Usuário não carregado!");
-    }
 
       setLoading(true);
 
+      // verifica o código do grupo
       const foundTeam = handleGroupVerification(allTeams ?? [], enterCode);
       if (!foundTeam || Array.isArray(foundTeam)) {
         throw new Error("Grupo não encontrado!");
       }
 
-      if (user?.id) {
-        await handleUpdate(user?.id, foundTeam);
-      } else {
-        throw new Error("Erro ao carregar usuário logado!");
+      const isOwner = foundTeam.ownerId == userId;
+      const isMember = foundTeam.members?.find((m) => m.user?.id == userId)
+      if (!isMember && !isOwner) { 
+        throw new Error("Você não pertence ao grupo!");
       }
 
+      await handleUpdate(userId, foundTeam);
+      
       return foundTeam;
 
     } catch(error) {

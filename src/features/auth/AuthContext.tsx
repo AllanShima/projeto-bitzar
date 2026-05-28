@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { useUsers } from '@/hooks/usersQuery';
-import type { User } from '@/interfaces/Interfaces';
+import type { Team, User } from '@/interfaces/Interfaces';
+import { useTeams } from '@/hooks/teamQuery';
 
 interface AuthContextType {
   user: User | null;
@@ -12,41 +13,68 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { data, isLoading: isLoadingUsers, isFetching } = useUsers();
+  const { data: userData, isLoading: isLoadingUsers } = useUsers();
+  const { data: teamData, isLoading: isLoadingTeams } = useTeams();
+
+  const [fbUser, setFbUser] = useState<FirebaseUser | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  
-  // Criamos um estado de carregamento próprio para o Auth
   const [authLoading, setAuthLoading] = useState(true);
 
+  // 1. Escuta se o usuário está logado no Firebase Auth
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      // Se o Firebase respondeu que NÃO há usuário logado
+      setFbUser(firebaseUser);
       if (!firebaseUser) {
         setUser(null);
         setAuthLoading(false);
-        return;
       }
-
-      // Se há usuário no Firebase, mas a lista do banco ainda está carregando,
-      // mantemos o authLoading como true e esperamos o próximo ciclo.
-      if (isLoadingUsers || isFetching || !data) {
-        setAuthLoading(true);
-        return;
-      }
-
-      // Se temos o usuário do Firebase E os dados do banco, finalmente cruzamos as informações
-      const userId = firebaseUser.uid;
-      const foundUser = data.find((u) => u.id === userId);
-      
-      setUser(foundUser || null);
-      setAuthLoading(false); // Agora sim, terminamos de processar tudo!
     });
-
     return () => unsubscribe();
-  }, [data, isLoadingUsers, isFetching]); // Adicionado isLoadingUsers nas dependências
+  }, []);
+
+  // 2. ✅ APENAS MONTA O USUÁRIO NA MEMÓRIA (Sem loops de gravação no banco!)
+  useEffect(() => {
+    if (isLoadingUsers || isLoadingTeams || !userData || !teamData) {
+      return; 
+    }
+
+    if (fbUser) {
+      const foundUser = userData.find((u) => u.id === fbUser.uid);
+      
+      if (foundUser) {
+        // Buscamos o time em tempo real direto da coleção 'teams' ativa do React Query
+        const liveTeam = teamData.find((t) => t.id === foundUser.teamLoggedIn?.id);
+
+        if (liveTeam) {
+          // Criamos o time dinamicamente com a data limpa apenas para a renderização
+          const updatedTeam: Team = {
+            ...liveTeam,
+            createdAt: liveTeam.createdAt
+          };
+
+          // Injeta na memória o usuário contendo o time 100% atualizado e sem delay
+          setUser({
+            ...foundUser,
+            teamLoggedIn: updatedTeam
+          });
+        } else {
+          // Caso ele não tenha time associado
+          setUser({
+            ...foundUser,
+            teamLoggedIn: foundUser.teamLoggedIn ? {
+              ...foundUser.teamLoggedIn,
+              createdAt: foundUser.teamLoggedIn.createdAt
+            } : undefined as any
+          });
+        }
+      } else {
+        setUser(null);
+      }
+      setAuthLoading(false);
+    }
+  }, [userData, teamData, fbUser, isLoadingUsers, isLoadingTeams]);
 
   return (
-    // Passamos o authLoading em vez do isLoading bruto do useUsers
     <AuthContext.Provider value={{ user, loading: authLoading }}>
       {children}
     </AuthContext.Provider>

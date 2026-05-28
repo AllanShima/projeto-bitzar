@@ -8,12 +8,16 @@ import { IoDocumentTextOutline } from 'react-icons/io5';
 import type { TeamMember, User } from '@/interfaces/Interfaces';
 import UserSettingsModal from './UserSettingsModal';
 import UserDeleteModal from './UserDeleteModal';
+import { handleDateFormat } from '@/features/members/utils/useFormatarDataActions';
 
 interface UserCardProps {
     teammate?: TeamMember
 }
 
 const UserCard = ({teammate} : UserCardProps) => {
+
+    
+
     const [userSettingsModal, setUserSettingsModal] = useState(false);
     const [userDeleteModal, setUserDeleteModal] = useState(false);
 
@@ -37,7 +41,7 @@ const UserCard = ({teammate} : UserCardProps) => {
                     <h2 className='font-medium text-xl'>{username}</h2>
                     <p className='text-gray-800'>{user?.email}</p>
                     <span className='flex items-center space-x-4 text-gray-600 text-xs'>
-                        <p>Cadastrado em: {user?.createdAt}</p>
+                        <p>Cadastrado em: {handleDateFormat(teammate?.user?.createdAt)}</p>
                         <GoDotFill className='w-1.5 h-1.5'/>
                         <p>{statusCapitalized}</p>
                     </span>

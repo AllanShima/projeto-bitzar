@@ -22,7 +22,6 @@ const Login = () => {
         try {
             setLoading(true);
             await signInWithEmailAndPassword(auth, userEmail, userPassword);
-            toast.success("Usuário logado com sucesso!");
             navigate("/teamregister");
         } catch (error){
             if (error instanceof FirebaseError) {

@@ -7,7 +7,7 @@ import React, { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { IoSearch } from 'react-icons/io5'
 import { Teams, Users } from '@/assets/MockupData';
-import type { Team, User } from '@/interfaces/Interfaces'
+import type { File, Team, TeamMember, User } from '@/interfaces/Interfaces'
 import { FaUserPlus } from 'react-icons/fa'
 import NewMemberModal from '@/features/members/components/NewMemberModal'
 
@@ -19,10 +19,23 @@ const TeamPage = ({authUser}: TeamPageProps) => {
   // mockup
   // const [team, setTeam] = useState<Team>(Teams[0]!);
 
-  // Se não tem time, deixa como vazio...
-  const teamLoggedIn = !authUser?.teamLoggedIn ? {} as Team : authUser.teamLoggedIn;
-  const [team, setTeam] = useState<Team>(teamLoggedIn);
-  const teamMembers = !team?.members ? [] : team.members;
+// ✅ CORREÇÃO 1: Evite criar um objeto vazio '{}' enganoso. 
+  // Diga explicitamente o formato esperado com arrays vazios padrão.
+  const defaultTeam: Team = authUser?.teamLoggedIn || {
+    id: '',
+    title: '',
+    description: '',
+    code: '',
+    ownerId: '',
+    members: [] as TeamMember[],
+    files: [] as File[],
+    createdAt: new Date()
+  };
+
+  const [team] = useState<Team>(defaultTeam);
+  
+  // Garante de forma ultra segura que members sempre será um array mapeável
+  const teamMembers = team?.members || [];
 
   const [newMemberModal, setNewMemberModal] = useState(false);
   const [searchText, setSearchText] = useState("");
@@ -45,6 +58,7 @@ const TeamPage = ({authUser}: TeamPageProps) => {
             </div>
             {/* Upload Button */}
             <button 
+              type="button"
               onClick={() => setNewMemberModal(true)}
               className='flex w-fit h-fit px-4 py-2 bg-linear-to-r from-sky-500 to-fuchsia-500 rounded-xl hover:from-sky-600 hover:to-fuchsia-600 transition duration-200'>
               <span className='flex justify-center items-center space-x-3'>
@@ -75,10 +89,9 @@ const TeamPage = ({authUser}: TeamPageProps) => {
           <span className='flex w-full h-10 p-2 bg-transparent'/>
         </div>
       </div>
-      <Dialog open={newMemberModal} onClose={() => setNewMemberModal(false)}>
+      <Dialog className="relative z-50" open={newMemberModal} onClose={() => setNewMemberModal(false)}>
         <NewMemberModal authUser={authUser} setIsOpen={setNewMemberModal}/>
       </Dialog>
-
       <Toaster/>
     </div>
   )

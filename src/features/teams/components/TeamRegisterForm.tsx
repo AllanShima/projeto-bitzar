@@ -5,12 +5,15 @@ import { useNavigate } from 'react-router';
 import { MdOutlinePassword, MdSubtitles } from 'react-icons/md';
 import { useTeamRegisterActions } from '../hooks/useTeamRegisterActions';
 import { useTeamLoginActions } from '../hooks/useTeamLoginActions';
+import type { User } from '@/interfaces/Interfaces';
 
-const TeamRegisterForm = () => {
+interface RegisterFormProps { 
+  authUser?: User | null
+}
+
+const TeamRegisterForm = ({authUser} : RegisterFormProps) => {
   const { handleTeamRegister } = useTeamRegisterActions();
-  const { handleTeamLogin } = useTeamLoginActions();
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const [registerData, setRegisterData] = useState({
     title: '',
@@ -20,14 +23,17 @@ const TeamRegisterForm = () => {
 
   const handleRegister = async (e : SubmitEvent<HTMLFormElement>) => {
     e.preventDefault(); // Impede o reload da página
-
-    if (Object.values(registerData).some(field => field === '')) {
-      return toast.error('Preencha todos os campos!');
-    }
     
     try {
+      if (!authUser) {
+        throw new Error("Falha ao carregar usuário!")
+      }
+      if (Object.values(registerData).some(field => field === '')) {
+        throw new Error('Preencha todos os campos!');
+      }
+
       setLoading(true);
-      await handleTeamRegister(registerData.title, registerData.description, registerData.code);
+      await handleTeamRegister(authUser.id!, registerData.title, registerData.description, registerData.code);
       toast.success("Criado com sucesso!");
     } catch (error){
       toast.error(String(error));

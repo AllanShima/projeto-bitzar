@@ -38,5 +38,5 @@ export interface Team {
   ownerId?: string,
   members?: TeamMember[],
   files?: File[],
-  createdAt?: string,
+  createdAt?: Date,
 }
