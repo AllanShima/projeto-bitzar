@@ -14,11 +14,14 @@ interface ChatPageProps {
 const ChatPage = ({ authUser }: ChatPageProps) => {
   const [userText, setUserText] = useState("");
   const [containsText, setContainsText] = useState(false);
+  const { handleTextSubmit, loading: loadingResponse, handleUpdate, model } = useTextSubmitActions();
+
+  // mensagens do usuário logado
+  const memberFromLoggedTeam = authUser.teamLoggedIn?.members!.find((m) => m.user?.id === authUser.id)
+  const userMessages = memberFromLoggedTeam?.messages;
 
   // Inicializa o estado com as mensagens que já existem no banco
-  const [messages, setMessages] = useState<Message[]>(authUser.messages || []);
-
-  const { handleTextSubmit, loading: loadingResponse, handleUpdate, model } = useTextSubmitActions(authUser.id!);
+  const [messages, setMessages] = useState<Message[]>(userMessages || []);
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -28,7 +31,7 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
         createdAt: new Date(),
       };
       setMessages([starterAIMessage]);
-      handleUpdate(starterAIMessage); // Salva a inicial no banco
+      handleUpdate(authUser, [starterAIMessage]); // Salva a inicial no banco
     }
   }, []); // Executa apenas uma vez ao montar o componente
 
@@ -48,7 +51,7 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
     setContainsText(false);
 
     try {
-      const result = await handleTextSubmit(userText);
+      const result = await handleTextSubmit(authUser, userText);
       
       if (result) {
         // Adiciona a resposta da IA na tela (a do usuário já adicionamos acima)

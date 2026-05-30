@@ -1,20 +1,32 @@
-import type { User } from '@/interfaces/Interfaces'
+import type { TeamMember, User } from '@/interfaces/Interfaces'
 import { DialogBackdrop, DialogPanel } from '@headlessui/react'
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
-import UserInput from './UserInput'
-import UserInputButtons from './UserInputButtons'
+import UserInput from '../../../ui/UserInput'
+import UserInputButtons from '../../../ui/UserInputButtons'
+import toast from 'react-hot-toast'
+import { useAlterMemberActions } from '@/features/members/hooks/useAlterMemberActions'
 
 interface UserSettingsModalProps {
-    setIsOpen: Dispatch<SetStateAction<boolean>>,
-    user?: User
+  authUser: User,
+  teamMembers: TeamMember[],
+  setTeamMembers: Dispatch<SetStateAction<TeamMember[]>>,
+  setIsOpen: Dispatch<SetStateAction<boolean>>,
+  toAlterMember?: TeamMember
 }
 
-const UserSettingsModal = ({user, setIsOpen} : UserSettingsModalProps) => {
+const UserSettingsModal = ({authUser, toAlterMember, teamMembers, setTeamMembers, setIsOpen} : UserSettingsModalProps) => {
 
-  const [userPermission, setUserPermission] = useState('participant');
+  const [userStatus, setUserStatus] = useState<'admin' | 'participant' | 'owner'>(toAlterMember!.status);
+  const { handleAlterMember, loading } = useAlterMemberActions();
 
-  const handleUserUpdate = () => {
-    setIsOpen(false);
+  const handleUserUpdate = async () => {
+    try {
+      const updatedTeamMembers = await handleAlterMember(authUser, toAlterMember!, userStatus)
+      setTeamMembers(updatedTeamMembers);
+      setIsOpen(false);
+    } catch (error) {
+      toast.error(String(error));
+    }
   }
 
   return (
@@ -36,7 +48,7 @@ const UserSettingsModal = ({user, setIsOpen} : UserSettingsModalProps) => {
             </span>
             <div className='flex flex-col w-full space-y-2 items-center'>
               <div className='flex w-fit'>
-                <UserInputButtons activeButton={userPermission} setActiveButton={setUserPermission}/>               
+                <UserInputButtons activeButton={userStatus} setActiveButton={setUserStatus}/>               
               </div>                        
             </div>
 
@@ -48,10 +60,11 @@ const UserSettingsModal = ({user, setIsOpen} : UserSettingsModalProps) => {
                 Cancelar
               </button>
               <button 
+                disabled={loading}
                 onClick={() => handleUserUpdate()}
                 className='bg-linear-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition rounded-lg px-6 py-2 text-white font-medium'
               >
-                Atualizar
+                {loading ? "Carregando..." : "Atualizar"}
               </button>
             </div>
           </fieldset>

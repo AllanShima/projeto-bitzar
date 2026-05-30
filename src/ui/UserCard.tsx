@@ -1,22 +1,23 @@
 import { Dialog } from '@headlessui/react';
-import React, { useState } from 'react'
+import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import { Toaster } from 'react-hot-toast';
 import { CgTrash } from 'react-icons/cg';
 import { MdOutlineEdit } from 'react-icons/md';
 import { GoDotFill } from 'react-icons/go';
 import { IoDocumentTextOutline } from 'react-icons/io5';
 import type { TeamMember, User } from '@/interfaces/Interfaces';
-import UserSettingsModal from './UserSettingsModal';
-import UserDeleteModal from './UserDeleteModal';
+import UserSettingsModal from '../features/members/ui/UserSettingsModal';
+import UserDeleteModal from '../features/members/ui/UserDeleteModal';
 import { handleDateFormat } from '@/features/members/utils/useFormatarDataActions';
 
 interface UserCardProps {
+    authUser: User,
+    teamMembers: TeamMember[]
+    setTeamMembers: Dispatch<SetStateAction<TeamMember[]>>,
     teammate?: TeamMember
 }
 
-const UserCard = ({teammate} : UserCardProps) => {
-
-    
+const UserCard = ({authUser, teamMembers, setTeamMembers, teammate} : UserCardProps) => {
 
     const [userSettingsModal, setUserSettingsModal] = useState(false);
     const [userDeleteModal, setUserDeleteModal] = useState(false);
@@ -65,10 +66,10 @@ const UserCard = ({teammate} : UserCardProps) => {
                 
             </div>
             <Dialog open={userSettingsModal} onClose={() => setUserSettingsModal(false)}>
-                <UserSettingsModal user={user} setIsOpen={setUserSettingsModal}/>
+                <UserSettingsModal authUser={authUser} toAlterMember={teammate} teamMembers={teamMembers} setTeamMembers={setTeamMembers} setIsOpen={setUserSettingsModal}/>
             </Dialog>
             <Dialog open={userDeleteModal} onClose={() => setUserDeleteModal(false)}>
-                <UserDeleteModal user={user} setIsOpen={setUserDeleteModal}/>
+                <UserDeleteModal authUser={authUser} toDeleteUser={user} teamMembers={teamMembers} setTeamMembers={setTeamMembers} setIsOpen={setUserDeleteModal}/>
             </Dialog>
 
             <Toaster/>

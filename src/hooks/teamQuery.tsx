@@ -8,7 +8,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useCreateTeam() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (newTeam : Team) => teamService.saveTeam(newTeam),
     onSuccess: () => {

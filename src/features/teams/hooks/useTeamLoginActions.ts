@@ -3,7 +3,7 @@ import { handleGroupVerification } from '../utils/verification';
 import { useAuth } from '@/features/auth/AuthContext';
 import { useTeams } from '@/hooks/teamQuery';
 import { useUpdateUser } from '@/hooks/usersQuery';
-import type { Team } from '@/interfaces/Interfaces';
+import type { Team, User } from '@/interfaces/Interfaces';
 
 export const useTeamLoginActions = () => {
   const [loading, setLoading] = useState(false);
@@ -15,10 +15,12 @@ export const useTeamLoginActions = () => {
     error: errorAll 
   } = useTeams();
 
-  const handleTeamLogin = async (userId: string, enterCode: string) => {
+  const handleTeamLogin = async (user: User, enterCode: string) => {
     try{
 
       setLoading(true);
+
+      const userId = user.id;
 
       // verifica o código do grupo
       const foundTeam = handleGroupVerification(allTeams ?? [], enterCode);
@@ -32,7 +34,7 @@ export const useTeamLoginActions = () => {
         throw new Error("Você não pertence ao grupo!");
       }
 
-      await handleUpdate(userId, foundTeam);
+      await handleUpdate(userId!, foundTeam);
       
       return foundTeam;
 

@@ -5,7 +5,7 @@ import { FaUsersCog } from "react-icons/fa";
 
 interface UserInputButtonsProps {
     activeButton: string,
-    setActiveButton: Dispatch<SetStateAction<string>>
+    setActiveButton: Dispatch<SetStateAction<any>>
 }
 
 const UserInputButtons = ({activeButton, setActiveButton} : UserInputButtonsProps) => {

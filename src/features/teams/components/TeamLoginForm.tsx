@@ -27,7 +27,7 @@ const TeamLoginForm = ({authUser} : LoginFormProps) => {
         throw new Error("Falha ao carregar usuário!")
       }
 
-      const loggedTeam = await handleTeamLogin(authUser.id!, enterCode);
+      const loggedTeam = await handleTeamLogin(authUser, enterCode);
       navigate('/home', { state: { justLoggedInTeam: loggedTeam } });
       
     } catch (error) {

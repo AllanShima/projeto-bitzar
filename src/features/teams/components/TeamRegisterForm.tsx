@@ -33,7 +33,7 @@ const TeamRegisterForm = ({authUser} : RegisterFormProps) => {
       }
 
       setLoading(true);
-      await handleTeamRegister(authUser.id!, registerData.title, registerData.description, registerData.code);
+      await handleTeamRegister(authUser, registerData.title, registerData.description, registerData.code);
       toast.success("Criado com sucesso!");
     } catch (error){
       toast.error(String(error));

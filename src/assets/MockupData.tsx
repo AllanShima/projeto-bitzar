@@ -8,7 +8,6 @@ export const Users: User[] = [
         lastName: "Shinhama",
         email: "allanshinham@gmail.com",
         password: "allna",
-        messages: [],
         createdAt: "19/02/2026" 
     },
     {
@@ -17,7 +16,6 @@ export const Users: User[] = [
         lastName: "Eduardo",
         email: "carloseduardo@gmail.com",
         password: "belo",
-        messages: [],
         createdAt: "19/03/2026" 
     },
     {
@@ -26,7 +24,6 @@ export const Users: User[] = [
         lastName: "Ferreira",
         email: "emanuellyferreir@gmail.com",
         password: "casa",
-        messages: [],
         createdAt: "20/03/2024" 
     },
     {
@@ -35,7 +32,6 @@ export const Users: User[] = [
         lastName: "Henrique da Silva",
         email: "prdro@gmail.com",
         password: "shinhama",
-        messages: [],
         createdAt: "19/02/2026" 
     },
 ]
@@ -82,19 +78,23 @@ export const Files: File[] = [
 const TeamMembers: TeamMember[] = [
     {
         status: 'admin',
-        user: Users[0]
+        user: Users[0],
+        messages: []
     },
     {
         status: 'participant',
-        user: Users[1]
+        user: Users[1],
+        messages: []
     },
     {
         status: 'participant',
-        user: Users[2]
+        user: Users[2],
+        messages: []
     },
     {
         status: 'participant',
-        user: Users[3]
+        user: Users[3],
+        messages: []
     },
 ]
 
@@ -106,6 +106,6 @@ export const Teams: Team[] = [
         code: "chave1",
         ownerId: Users[1]?.id,
         members: TeamMembers,
-        createdAt: "09/07/2025"
+        createdAt: new Date()
     }
 ]

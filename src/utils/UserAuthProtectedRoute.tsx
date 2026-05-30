@@ -10,11 +10,11 @@ interface ProtectedRouteProp {
 const UserAuthProtectedRoute = ({ children }: ProtectedRouteProp) => {
   const { user, loading } = useAuth();
 
-  useEffect(() => {
-    if (!user && !loading) {
-      toast.error("Você precisa estar logado para ver esta página!");
-    }
-  }, [user, loading]);
+  // useEffect(() => {
+  //   if (!user && !loading) {
+  //     toast.error("Você precisa estar logado para ver esta página!");
+  //   }
+  // }, [user, loading]);
 
   // 1. Primeiro, espera o Firebase e a Query terminarem de carregar
   if (loading) return <p>Carregando...</p>;
@@ -23,6 +23,8 @@ const UserAuthProtectedRoute = ({ children }: ProtectedRouteProp) => {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
+
+  
 
   // 3. Se achou o usuário, libera o acesso
   return <>{children}</>;

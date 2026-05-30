@@ -20,23 +20,27 @@ export const teamService = {
 
   // Criar/Salvar time/grupo
   async saveTeam(teamData : Team) {
-    // Gerando o Id
-    const docRef = doc(teamRef);
-    const documentId = docRef.id;
+    try {
+      // Gerando o Id
+      const docRef = doc(teamRef);
+      const documentId = docRef.id;
 
-    const teamPayload = { 
-      id: documentId, // ID "A"
-      title: teamData.title,
-      description: teamData.description,
-      code: teamData.code,
-      ownerId: teamData.ownerId,
-      members: [],
-      files: [],
-      createdAt: new Date() 
-    };
-    await setDoc(docRef, teamPayload);
+      const teamPayload = { 
+        id: documentId, // ID "A"
+        title: teamData.title,
+        description: teamData.description,
+        code: teamData.code,
+        ownerId: teamData.ownerId,
+        members: teamData.members,
+        files: [],
+        createdAt: new Date() 
+      };
+      await setDoc(docRef, teamPayload);
 
-    return teamPayload;
+      return teamPayload;
+    } catch (error) {
+      throw error
+    }
   },
 
   // Leitura do arquivo por id do dono do grupo

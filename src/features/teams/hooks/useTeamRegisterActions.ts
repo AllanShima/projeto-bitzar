@@ -4,11 +4,11 @@ import { FirebaseError } from 'firebase/app';
 import React, { useState } from 'react'
 import { handleGroupVerification } from '../utils/verification';
 import { useUpdateUser } from '@/hooks/usersQuery';
-import type { Team } from '@/interfaces/Interfaces';
+import type { Team, TeamMember, User } from '@/interfaces/Interfaces';
 
 export const useTeamRegisterActions = () => {
   const [loading, setLoading] = useState(false);
-  const { user, loading: userLoading } = useAuth(); // Dados do usuário autenticado
+  const createTeamMutation = useCreateTeam(); // Prepara a criação
 
   const { 
     data: allTeams, 
@@ -16,18 +16,23 @@ export const useTeamRegisterActions = () => {
     error: errorAll 
   } = useTeams();
 
-  const createTeamMutation = useCreateTeam(); // Prepara a criação
-
-  const handleTeamRegister = async (userId: string, title: string, description: string, code: string) => {
+  const handleTeamRegister = async (user: User, title: string, description: string, code: string) => {
     try {
       setLoading(true);
+
+      const userId = user.id;
 
       const allUserTeams = allTeams?.find((t) => t.ownerId == userId)
       if (allUserTeams) {
         throw new Error("Você já criou um grupo!");
       }
 
-      await handleSave(userId, title, description, code); // Salva os dados no banco
+      await handleSave(user, title, description, code); // Salva os dados no banco
+
+      if (createTeamMutation.isError){
+
+        throw new Error(String(createTeamMutation.error));
+      }
 
     } catch(error) {
       throw error;
@@ -36,8 +41,19 @@ export const useTeamRegisterActions = () => {
     }
   }
 
-  const handleSave = (userId: string, title: string, description: string, code: string) => {
-    createTeamMutation.mutate({ title: title, description: description, code: code, ownerId: userId });
+  const handleSave = (user: User, title: string, description: string, code: string) => {
+    const newTeam: Team = {
+      title: title,
+      description: description,
+      code: code,
+      ownerId: user.id,
+      members: [{
+        status: 'owner',
+        user: user,
+        messages: []
+      }] as TeamMember[],
+    }
+    createTeamMutation.mutate(newTeam);
   };
 
   return { handleTeamRegister, loading }

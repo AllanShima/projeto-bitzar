@@ -20,14 +20,14 @@ export interface User {
   lastName: string,
   email: string,
   password: string,
-  messages?: Message[],
   teamLoggedIn?: Team | null,
   createdAt?: string
 }
 
 export interface TeamMember {
-  status: 'admin' | 'participant',
-  user?: User
+  status: 'admin' | 'participant' | 'owner',
+  user?: User,
+  messages?: Message[]
 }
 
 export interface Team {

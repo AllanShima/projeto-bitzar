@@ -1,4 +1,4 @@
-import type { User } from '@/interfaces/Interfaces';
+import type { Message, Team, User } from '@/interfaces/Interfaces';
 import { db } from '../config/firebase';
 import { collection, addDoc, getDocs, query, where, doc, setDoc, updateDoc } from 'firebase/firestore';
 
@@ -32,8 +32,7 @@ export const userService = {
         lastName: userData.lastName,
         email: userData.email,
         password: userData.password,
-        messages: [],
-        teamLoggedIn: {},
+        teamLoggedIn: null,
         createdAt: new Date()
       };
 

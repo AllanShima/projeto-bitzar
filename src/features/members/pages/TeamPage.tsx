@@ -35,8 +35,7 @@ const TeamPage = ({authUser}: TeamPageProps) => {
   const [team] = useState<Team>(defaultTeam);
   
   // Garante de forma ultra segura que members sempre será um array mapeável
-  const teamMembers = team?.members || [];
-
+  const [teamMembers, setTeamMembers] = useState(team?.members || []);
   const [newMemberModal, setNewMemberModal] = useState(false);
   const [searchText, setSearchText] = useState("");
 
@@ -80,9 +79,10 @@ const TeamPage = ({authUser}: TeamPageProps) => {
 
       <div className='flex flex-col w-full h-full bg-transparent overflow-y-auto'>
         <div className='flex flex-col w-full h-full px-7'>
-          {teamMembers.map((teammate) => (
+          {/* Mapeia todos os membros menos o primeiro (que é o dono do grupo) */}
+          {teamMembers.slice(1).map((teammate) => (
             <div key={teammate.user?.id}>
-              <UserCard teammate={teammate}/>              
+              <UserCard authUser={authUser} teamMembers={teamMembers} setTeamMembers={setTeamMembers} teammate={teammate}/>              
             </div>
           ))}
           {/* Spacer */}
@@ -90,7 +90,7 @@ const TeamPage = ({authUser}: TeamPageProps) => {
         </div>
       </div>
       <Dialog className="relative z-50" open={newMemberModal} onClose={() => setNewMemberModal(false)}>
-        <NewMemberModal authUser={authUser} setIsOpen={setNewMemberModal}/>
+        <NewMemberModal authUser={authUser} setTeamMembers={setTeamMembers} setIsOpen={setNewMemberModal}/>
       </Dialog>
       <Toaster/>
     </div>

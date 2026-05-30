@@ -3,15 +3,16 @@ import React, { useState, type Dispatch, type SetStateAction, type SubmitEvent }
 import UserInput from '../../../ui/UserInput'
 import toast from 'react-hot-toast'
 import { useNewMemberActions } from '../hooks/useNewMemberActions'
-import type { User } from '@/interfaces/Interfaces'
+import type { TeamMember, User } from '@/interfaces/Interfaces'
 import { useQueryClient } from '@tanstack/react-query'
 
 interface NewMemberProp {
     authUser: User,
+    setTeamMembers: Dispatch<SetStateAction<TeamMember[]>>
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const NewMemberModal = ({authUser, setIsOpen} : NewMemberProp) => {
+const NewMemberModal = ({authUser, setTeamMembers, setIsOpen} : NewMemberProp) => {
     const { handleNewMember, loading } = useNewMemberActions();
     const [userEmail, setUserEmail] = useState('');
     const queryClient = useQueryClient();
@@ -22,7 +23,9 @@ const NewMemberModal = ({authUser, setIsOpen} : NewMemberProp) => {
             if (!team) {
                 throw new Error("Nenhum time/grupo encontrado??");
             }
-            await handleNewMember(team, userEmail);
+            const newTeamMember = await handleNewMember(team, userEmail);
+
+            setTeamMembers((prev) => [...prev, newTeamMember]);
 
             // 👈 3. CORREÇÃO: Invalida a query que traz os dados do usuário autenticado.
             // Substitua 'authUser' pela chave exata que você usou no hook do seu perfil/auth
@@ -77,7 +80,6 @@ const NewMemberModal = ({authUser, setIsOpen} : NewMemberProp) => {
                             </button>
                         </div>
                     </fieldset>
-
                 </DialogPanel>
             </div>        
         </>

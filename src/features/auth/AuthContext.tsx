@@ -34,16 +34,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // 2. ✅ APENAS MONTA O USUÁRIO NA MEMÓRIA (Sem loops de gravação no banco!)
   useEffect(() => {
-    if (isLoadingUsers || isLoadingTeams || !userData || !teamData) {
-      return; 
-    }
+    if (
+        isLoadingUsers || 
+        isLoadingTeams || 
+        !userData || 
+        !teamData || 
+        !Array.isArray(userData) || 
+        !Array.isArray(teamData)
+      ) {
+        return; // Aguarda os dados assentarem pacificamente no cache
+      }
 
     if (fbUser) {
-      const foundUser = userData.find((u) => u.id === fbUser.uid);
+      const foundUser = userData?.find((u) => u.id === fbUser.uid);
       
       if (foundUser) {
         // Buscamos o time em tempo real direto da coleção 'teams' ativa do React Query
-        const liveTeam = teamData.find((t) => t.id === foundUser.teamLoggedIn?.id);
+        const liveTeam = teamData?.find((t) => t.id === foundUser.teamLoggedIn?.id);
 
         if (liveTeam) {
           // Criamos o time dinamicamente com a data limpa apenas para a renderização
@@ -58,13 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             teamLoggedIn: updatedTeam
           });
         } else {
-          // Caso ele não tenha time associado
+          // Caso ele não tenha time associado, garante que fique null
           setUser({
             ...foundUser,
-            teamLoggedIn: foundUser.teamLoggedIn ? {
-              ...foundUser.teamLoggedIn,
-              createdAt: foundUser.teamLoggedIn.createdAt
-            } : undefined as any
+            teamLoggedIn: null
           });
         }
       } else {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Team, TeamMember } from '@/interfaces/Interfaces';
+import type { Message, Team, TeamMember } from '@/interfaces/Interfaces';
 import { arrayUnion } from 'firebase/firestore';
 import { useUpdateTeam } from '@/hooks/teamQuery';
 import { userService } from '@/services/userService'; // Ajuste o caminho do seu service
@@ -37,7 +37,8 @@ export const useNewMemberActions = () => {
 
       const newTeamMember: TeamMember = {
         status: 'participant',
-        user: foundUser
+        user: foundUser,
+        messages: [] as Message[]
       };
 
       // 2. Faz o update no Firebase
@@ -47,6 +48,8 @@ export const useNewMemberActions = () => {
           members: arrayUnion(newTeamMember) as any, 
         },
       });
+
+      return newTeamMember;
 
     } catch (error: unknown) {
       throw error;

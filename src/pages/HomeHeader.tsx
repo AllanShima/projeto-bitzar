@@ -26,10 +26,23 @@ const HomeHeader = ({authUser, activeTab, setActiveTab} : HomeHeaderProps) => {
     const navigate = useNavigate();
     const teamLoggedIn = authUser?.teamLoggedIn;
 
+    // Usando encadeamento opcional (?.) seguro em vez de (!) para evitar quebras se o time sumir
+    const userAsTeamMember = authUser?.teamLoggedIn?.members?.find((m: any) => m.user?.id === authUser.id);
+    const currentStatusInGroup = userAsTeamMember?.status;
+
+    // 🔐 Definição clara das permissões por tela
+    const canAccessChat = ['owner', 'admin', 'participant'].includes(currentStatusInGroup || '');
+    const canAccessArchive = ['owner', 'admin'].includes(currentStatusInGroup || '');
+    const canAccessInfo = ['owner'].includes(currentStatusInGroup || ''); // Ajuste aqui se admin também puder ver
+
     const handleLogoutUser = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault(); // Opcional, mas evita comportamentos inesperados
         try {
+            // logout do usuário
             await signOut(auth);
+            // logout do grupo também
+            await handleUpdate(authUser.id);
+            
             // onAuthStateChanged cuidaria do redirecionamente automaticamente
             navigate("/login");
         } catch (error) {
@@ -69,27 +82,33 @@ const HomeHeader = ({authUser, activeTab, setActiveTab} : HomeHeaderProps) => {
 
                     {/* Tab buttons */}
                     <div className='flex w-fit h-3/4 gap-2 my-auto'>
-                        <TabButton 
-                            onClick={() => setActiveTab('chat')} 
-                            isActive={activeTab === 'chat'}
-                            activeColor="text-sky-500" 
-                            label="Chat" 
-                            Icon={IoIosChatboxes}
-                        />
-                        <TabButton 
-                            onClick={() => setActiveTab('archive')} 
-                            isActive={activeTab === 'archive'}
-                            activeColor="text-fuchsia-500" 
-                            label="Arquivos" 
-                            Icon={FaFileAlt}
-                        />
-                        <TabButton 
-                            onClick={() => setActiveTab('info')} 
-                            isActive={activeTab === 'info'}
-                            activeColor="text-fuchsia-700" 
-                            label="Configurações" 
-                            Icon={RiTeamFill}
-                        />
+                        {canAccessChat && (
+                            <TabButton 
+                                onClick={() => setActiveTab('chat')} 
+                                isActive={activeTab === 'chat'}
+                                activeColor="text-sky-500" 
+                                label="Chat" 
+                                Icon={IoIosChatboxes}
+                            />                            
+                        )}
+                        {canAccessArchive && (
+                            <TabButton 
+                                onClick={() => setActiveTab('archive')} 
+                                isActive={activeTab === 'archive'}
+                                activeColor="text-fuchsia-500" 
+                                label="Arquivos" 
+                                Icon={FaFileAlt}
+                            />                            
+                        )}
+                        {canAccessInfo && (
+                            <TabButton 
+                                onClick={() => setActiveTab('info')} 
+                                isActive={activeTab === 'info'}
+                                activeColor="text-fuchsia-700" 
+                                label="Configurações" 
+                                Icon={RiTeamFill}
+                            />                            
+                        )}
                     </div>                    
                 </div>
 
