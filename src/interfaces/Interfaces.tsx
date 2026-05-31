@@ -8,10 +8,10 @@ export interface File {
   id?: string,
   name: string,
   description: string,
-  fileAddress: string,
-  fileSize: string,
+  fileAddress?: string,
+  fileSize?: number,
   uploadedBy: User,
-  createdAt?: string
+  createdAt?: Date
 }
 
 export interface User {

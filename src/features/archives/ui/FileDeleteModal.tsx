@@ -1,17 +1,29 @@
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import { DialogBackdrop, DialogPanel } from '@headlessui/react'
 import toast from 'react-hot-toast'
-import type { File } from '@/interfaces/Interfaces'
+import type { File, User } from '@/interfaces/Interfaces'
+import { useDeleteFileActions } from '../hooks/useDeleteFileActions'
 
 interface FileModalProp {
+    authUser: User,
     setIsOpen: Dispatch<SetStateAction<boolean>>
-    file: File
+    file: File,
+    setFiles: Dispatch<SetStateAction<File[]>>
 }
 
-const FileDeleteModal = ({file, setIsOpen} : FileModalProp) => {
-    const handleDelete = () => {
-        toast.success("Arquivo apagado com sucesso!");
-        setIsOpen(false);
+const FileDeleteModal = ({authUser, file, setFiles, setIsOpen} : FileModalProp) => {
+    const { handleDeleteFile, loading } = useDeleteFileActions();
+    const handleDelete = async () => {
+        try {
+            const updatedFiles = await handleDeleteFile(authUser, file);
+            setFiles(updatedFiles);
+
+            toast.success(`Arquivo ${file.name} apagado com sucesso!`)
+
+            setIsOpen(false);
+        } catch (error) {
+            toast.error(String(error));
+        }
     }
 
     return (
@@ -38,10 +50,11 @@ const FileDeleteModal = ({file, setIsOpen} : FileModalProp) => {
                                 Cancel
                             </button>
                             <button 
+                                disabled={loading}
                                 onClick={handleDelete}
                                 className='bg-red-500 hover:bg-red-600 transition rounded-lg px-6 py-2 text-white font-medium'
                             >
-                                Excluir
+                                {loading ? "Carregando..." : "Excluir"}
                             </button>
                         </div>
                     </fieldset>

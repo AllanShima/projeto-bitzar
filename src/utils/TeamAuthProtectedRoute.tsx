@@ -10,13 +10,12 @@ interface ProtectedRouteProp {
 
 const TeamAuthProtectedRoute = ({ children }: ProtectedRouteProp) => {
     const { user, loading } = useAuth();
-    const location = useLocation();
 
     // ✅ Captura o time temporário vindo direto do formulário (se existir)
-    const tempTeam = location.state?.justLoggedInTeam;
+    const storedTeam = JSON.parse(localStorage.getItem('logged_team')!);
 
     // O usuário tem permissão se ele já tem o time no Firebase OU se acabou de logar e o time está no state da rota
-    const hasTeam = user?.teamLoggedIn || tempTeam;
+    const hasTeam = user?.teamLoggedIn || storedTeam;
 
     useEffect(() => {
         if (!loading && user && !hasTeam) {

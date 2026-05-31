@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import { Dialog, DialogBackdrop } from '@headlessui/react'
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { GoDotFill } from "react-icons/go";
@@ -8,13 +8,16 @@ import { CgTrash } from "react-icons/cg";
 import FileSettingsModal from './FileSettingsModal';
 import FileDeleteModal from './FileDeleteModal';
 import toast from 'react-hot-toast';
-import type { File } from '@/interfaces/Interfaces';
+import type { File, User } from '@/interfaces/Interfaces';
+import { handleDateFormat } from '@/features/members/utils/useFormatarDataActions';
 
 interface FileCardProps {
-    file: File
+    authUser: User,
+    file: File,
+    setFiles: Dispatch<SetStateAction<File[]>>
 }
 
-const FileCard = ({file} : FileCardProps) => {
+const FileCard = ({authUser, file, setFiles} : FileCardProps) => {
     const [fileSettingsModal, setFileSettingsModal] = useState(false);
     const [fileDeleteModal, setFileDeleteModal] = useState(false);
 
@@ -30,6 +33,8 @@ const FileCard = ({file} : FileCardProps) => {
         toast.success("Arquivo instalado com sucesso!");
     }
 
+    const fileSize = `${file.fileSize! / 1000} Kb`
+
     return (
         <div className='flex w-full h-fit rounded-2xl p-5 mb-7 justify-between bg-white hover:shadow-lg transition'>
             {/* Image/Icon */}
@@ -44,21 +49,24 @@ const FileCard = ({file} : FileCardProps) => {
                     <h2 className='font-medium text-xl'>{file.name}</h2>
                     <p className='text-gray-800'>{file.description}</p>
                     <span className='flex items-center space-x-4 text-gray-600 text-xs'>
-                        <p>{file.fileSize}</p>
+                        <p>Tamanho: {fileSize}</p>
                         <GoDotFill className='w-1.5 h-1.5'/>
-                        <p>{file.createdAt}</p>
+                        <p>Criado em: {handleDateFormat(file.createdAt)}</p>
                     </span>
                 </div>            
             </span>
 
             <div className='flex space-x-2'>
 
-                <button 
-                    onClick={handleDownload}
-                    className='w-fit h-fit p-1.5 rounded-md hover:bg-blue-50 transition duration-200'
+                <a 
+                href={file.fileAddress} 
+                download={file.name} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className='w-fit h-fit p-1.5 rounded-md hover:bg-blue-50 transition duration-200'
                 >
                     <MdOutlineFileDownload className='w-5 h-5 text-blue-700'/>
-                </button>
+                </a>
 
                 <button
                     onClick={() => setFileSettingsModal(true)}
@@ -76,10 +84,10 @@ const FileCard = ({file} : FileCardProps) => {
                 
             </div>
             <Dialog open={fileSettingsModal} onClose={() => setFileSettingsModal(false)}>
-                <FileSettingsModal file={file} setIsOpen={setFileSettingsModal}/>
+                <FileSettingsModal authUser={authUser} file={file} setFiles={setFiles} setIsOpen={setFileSettingsModal}/>
             </Dialog>
             <Dialog open={fileDeleteModal} onClose={() => setFileDeleteModal(false)}>
-                <FileDeleteModal file={file} setIsOpen={setFileDeleteModal}/>
+                <FileDeleteModal authUser={authUser} file={file} setFiles={setFiles} setIsOpen={setFileDeleteModal}/>
             </Dialog>
         </div>
     )

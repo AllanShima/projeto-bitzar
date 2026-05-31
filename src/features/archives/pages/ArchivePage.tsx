@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MdOutlineUploadFile } from "react-icons/md";
 import { IoSearch } from "react-icons/io5";
-import FileCard from '@/ui/FileCard';
+import FileCard from '@/features/archives/ui/FileCard';
 import UserInput from '@/ui/UserInput';
 import { Dialog } from '@headlessui/react';
-import UploadFileModal from '@/ui/UploadFileModal';
+import UploadFileModal from '@/features/archives/ui/UploadFileModal';
 import toast, { Toaster } from 'react-hot-toast';
 import { DiVim } from 'react-icons/di';
 import { Files } from '@/assets/MockupData';
@@ -36,7 +36,7 @@ const ArchivePage = ({authUser}: ArchivePageProps) => {
   //   );
   // }
 
-  // dados mockpu
+  // dados mockup
   // const [files, setFiles] = useState<File[]>(Files);
 
   const filesFromTeamLoggedIn = !authUser?.teamLoggedIn?.files ? [] : authUser.teamLoggedIn.files;
@@ -44,6 +44,27 @@ const ArchivePage = ({authUser}: ArchivePageProps) => {
 
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    if (searchText.trim() === "") {
+      setFiles(filesFromTeamLoggedIn);
+      return; // Para a execução aqui
+    }
+
+    // Filtra os arquivos ignorando maiúsculas/minúsculas
+    const filteredFiles = filesFromTeamLoggedIn.filter((f) => {
+      const fileName = f.name.toLowerCase();
+      const search = searchText.toLowerCase();
+      
+      // Opção A: Começa com a(s) letra(s) digitada(s)
+      return fileName.includes(search); 
+      
+      // Opção B: Se preferir que ache a letra em QUALQUER parte do nome, use:
+      // return fileName.includes(search);
+    });
+
+    setFiles(filteredFiles);
+  }, [searchText])
 
   return (
     <div className='flex flex-col w-full h-full overflow-hidden bg-transparent pb-7'>
@@ -86,7 +107,7 @@ const ArchivePage = ({authUser}: ArchivePageProps) => {
         <div className='flex flex-col w-full h-full px-7'>
           {files.map((file) => (
             <div key={file.id}>
-              <FileCard file={file}/>
+              <FileCard authUser={authUser} file={file} setFiles={setFiles}/>
             </div>
           ))}
           {/* Spacer */}
@@ -95,7 +116,7 @@ const ArchivePage = ({authUser}: ArchivePageProps) => {
       </div>
 
       <Dialog open={uploadFileModal} onClose={() => setUploadFileModal(false)}>
-        <UploadFileModal setIsOpen={setUploadFileModal}/>
+        <UploadFileModal authUser={authUser} setFiles={setFiles} setIsOpen={setUploadFileModal}/>
       </Dialog>
 
       <Toaster/>

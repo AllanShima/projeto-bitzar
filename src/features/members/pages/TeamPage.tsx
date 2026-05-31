@@ -1,9 +1,9 @@
 import NewUserModal from '@/ui/NewUserModal'
-import UploadFileModal from '@/ui/UploadFileModal'
+import UploadFileModal from '@/features/archives/ui/UploadFileModal'
 import UserCard from '@/ui/UserCard'
 import UserInput from '@/ui/UserInput'
 import { Dialog } from '@headlessui/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { IoSearch } from 'react-icons/io5'
 import { Teams, Users } from '@/assets/MockupData';
@@ -38,6 +38,26 @@ const TeamPage = ({authUser}: TeamPageProps) => {
   const [teamMembers, setTeamMembers] = useState(team?.members || []);
   const [newMemberModal, setNewMemberModal] = useState(false);
   const [searchText, setSearchText] = useState("");
+
+  useEffect(() => {
+    if (searchText.trim() == "") {
+      setTeamMembers(team?.members || []);
+      return; // Para a execução aqui
+    }
+
+    const search = searchText.toLowerCase().trim();
+
+    // Filtra os arquivos ignorando maiúsculas/minúsculas
+    const filteredTeamMembers = (team?.members || []).filter((m) => {
+      const memberFirstName = m.user?.firstName || "";
+      const memberLastName = m.user?.lastName || "";
+      const memberFullName = (memberFirstName + " " + memberLastName).toLowerCase().trim();
+
+      return memberFullName.includes(search); 
+    });
+
+    setTeamMembers(filteredTeamMembers);
+  }, [searchText])
 
   return (
     <div className='flex flex-col w-full h-full overflow-hidden bg-transparent pb-7'>

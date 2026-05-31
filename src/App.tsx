@@ -23,7 +23,6 @@ export function App() {
       errorElement: <NotFoundPage/>,
     },
     {
-      index: true,
       path: '/home',
       element: 
         <UserAuthProtectedRoute>

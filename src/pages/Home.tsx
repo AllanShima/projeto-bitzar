@@ -1,5 +1,5 @@
 import ChatPage from "@/features/chat/pages/ChatPage";
-import ArchivePage from "./ArchivePage";
+import ArchivePage from "../features/archives/pages/ArchivePage";
 import HomeHeader from "./HomeHeader";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useState } from "react";

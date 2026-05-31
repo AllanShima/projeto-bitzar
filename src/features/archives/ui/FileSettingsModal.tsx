@@ -1,21 +1,31 @@
 import React, { useState, type Dispatch, type SetStateAction } from 'react'
 import { DialogBackdrop, DialogPanel } from '@headlessui/react'
-import UserInput from './UserInput'
-import type { File } from '@/interfaces/Interfaces'
+import UserInput from '../../../ui/UserInput'
+import type { File, User } from '@/interfaces/Interfaces'
 import toast from 'react-hot-toast'
+import { useAlterFileActions } from '../hooks/useAlterFileActions'
 
 interface FileModalProp {
+    authUser: User,
     file: File,
+    setFiles: Dispatch<SetStateAction<File[]>>,
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const FileSettingsModal = ({file, setIsOpen} : FileModalProp) => {
-    const [fileName, setFileName] = useState('');
-    const [fileDesctiption, setFileDescription] = useState('');
+const FileSettingsModal = ({authUser, file, setFiles, setIsOpen} : FileModalProp) => {
+    const { handleAlterFile, loading } = useAlterFileActions();
+    const [fileName, setFileName] = useState(file.name);
+    const [fileDesctiption, setFileDescription] = useState(file.description);
 
-    const handleNewFile = () => {
-        toast.success("Novo arquivo inserido!");
-        setIsOpen(false)
+    const handleNewFile = async () => {
+        try {
+            const updatedFiles = await handleAlterFile(authUser, file, fileName, fileDesctiption);
+            setFiles(updatedFiles);
+            toast.success("Arquivo alterado!");
+            setIsOpen(false)
+        } catch (error) {
+            toast.error(String(error));
+        }
     }
 
     return (
@@ -57,10 +67,11 @@ const FileSettingsModal = ({file, setIsOpen} : FileModalProp) => {
                                 Cancel
                             </button>
                             <button 
+                                disabled={loading}
                                 onClick={handleNewFile}
                                 className='bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition rounded-lg px-6 py-2 text-white font-medium'
                             >
-                                Salvar
+                                {loading ? "Carregando..." : "Salvar"}
                             </button>
                         </div>
                     </fieldset>

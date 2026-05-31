@@ -141,8 +141,8 @@ export const teamService = {
     });
   },
 
-  async deleteTeamByOwnerId(ownerId : string) {
-    const docRef = doc(db, "teams", ownerId); 
+  async deleteTeamById(teamId : string) {
+    const docRef = doc(db, "teams", teamId); 
     await deleteDoc(docRef);
   }
 };

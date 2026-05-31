@@ -1,20 +1,38 @@
 import { DialogBackdrop, DialogPanel } from '@headlessui/react'
-import React, { useState, type Dispatch, type SetStateAction } from 'react'
+import React, { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { MdOutlineFileUpload } from "react-icons/md";
-import UserInput from './UserInput';
+import UserInput from '../../../ui/UserInput';
+import type { User, File as IFile } from '@/interfaces/Interfaces';
+import toast from 'react-hot-toast';
+import { useNewFileActions } from '../hooks/useNewFileActions';
 
 interface UploadFileProp {
+    authUser: User,
+    setFiles: Dispatch<SetStateAction<IFile[]>>,
     setIsOpen: Dispatch<SetStateAction<boolean>>
 }
 
-const UploadFileModal = ({setIsOpen} : UploadFileProp) => {
+const UploadFileModal = ({authUser, setFiles, setIsOpen} : UploadFileProp) => {
+    const { handleNewFile, loading } = useNewFileActions();
     const [fileDescription, setFileDescription] = useState('');
+    const [file, setFile] = useState<File | null>(null);
 
-    const [loading, setLoading] = useState(false);
+    
 
-    const uploadFile = () => {
-        // Adicionar novo arquivo
-        setIsOpen(false);
+    const handleClick = async () => {
+        try {
+            if (!fileDescription || !file) {
+                throw new Error("Preencha o restante dos campo...");
+            }
+
+            const newFile: IFile = await handleNewFile(authUser, file, fileDescription);
+
+            setFiles((prev) => [...prev, newFile]);
+
+            setIsOpen(false);
+        } catch (error) {
+            toast.error(String(error));
+        }
     }
 
     return (
@@ -36,17 +54,35 @@ const UploadFileModal = ({setIsOpen} : UploadFileProp) => {
                         </span>
 
                         {/* Caixa de Item */}
-                        <button className='flex flex-col items-center w-full h-fit p-10 outline-2 outline-dashed outline-purple-300 hover:outline-purple-400 hover:cursor-pointer transition duration-200 rounded-2xl'>
-                            <span className='flex w-full justify-center'>
-                                <MdOutlineFileUpload className='w-18 h-18 text-purple-400'/>
-                            </span>
-                            <p className='text-gray-800 text-sm'>
-                                Clique para selecionar ou arraste o arquivo aqui
-                            </p>
-                            <p className='font-light text-xs'>
-                                PDF até 10MB
-                            </p>
-                        </button>
+                        <div className={`relative flex flex-col items-center w-full h-fit 
+                            ${!file && ('outline-2 outline-dashed outline-purple-300 hover:outline-purple-400 transition duration-200 rounded-2xl')}`}>
+
+                            {!file ? (
+                                <>
+                                    <input 
+                                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                                    type="file" 
+                                    accept='.pdf' 
+                                    className='absolute hover:cursor-pointer w-full h-full text-transparent'/>
+                                    <span className='flex w-full justify-center mt-10'>
+                                        <MdOutlineFileUpload className='w-18 h-18 text-purple-400'/>
+                                    </span>
+                                    <p className='text-gray-800 text-sm'>
+                                        Clique para selecionar ou arraste o arquivo aqui
+                                    </p>
+                                    <p className='font-light text-xs mb-10'>
+                                        PDF até 10MB
+                                    </p>                                
+                                </>
+                            ) : (
+                                <iframe 
+                                    src={URL.createObjectURL(file)} 
+                                    className="w-full h-[400px]" 
+                                    title="Visualizador de PDF"
+                                />
+                            )}
+
+                        </div>
                         <div className='flex flex-col space-y-2'>
                             <label className='text-black font-medium'>
                                 Descrição do documento
@@ -64,10 +100,11 @@ const UploadFileModal = ({setIsOpen} : UploadFileProp) => {
                                 Cancel
                             </button>
                             <button 
-                                onClick={() => uploadFile()}
+                                disabled={loading}
+                                onClick={() => handleClick()}
                                 className='bg-linear-to-r from-blue-400 to-fuchsia-400 hover:from-blue-500 hover:to-fuchsia-500 transition rounded-lg px-6 py-2 text-white font-medium'
                             >
-                                Upload
+                                {loading ? 'Carregando...' : 'Upload'}
                             </button>
                         </div>
                     </fieldset>
