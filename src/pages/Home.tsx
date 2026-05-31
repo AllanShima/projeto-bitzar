@@ -4,15 +4,27 @@ import HomeHeader from "./HomeHeader";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useState } from "react";
 import TeamInfoPage from '../features/members/pages/TeamPage';
+import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 const Home = () => {
+    const navigate = useNavigate();
     const { user, loading } = useAuth();
     const [activeTab, setActiveTab] = useState('chat');
 
     if (loading) {
-        return <div className="flex items-center justify-center h-screen w-screen">Carregando...</div>;
+        return <div className="flex items-center justify-center h-screen w-screen text-black">Carregando usuário e grupo...</div>;
     }
 
+    // se o usuário não estiver carregado
+    if (!loading && !user) {
+        return toast.error("Usuário não carregado...")
+    }
+
+    if (!loading && !user?.teamLoggedIn) {
+        return toast.error("Time/Grupo não carregado...")
+    }
+    
     return (
         <div className="flex flex-col w-screen h-screen">
             <HomeHeader authUser={user} activeTab={activeTab} setActiveTab={setActiveTab}/>
@@ -30,6 +42,7 @@ const Home = () => {
                     <TeamInfoPage authUser={user!}/>
                 </div>
             </main>
+            <Toaster/>
         </div>
     );
 };

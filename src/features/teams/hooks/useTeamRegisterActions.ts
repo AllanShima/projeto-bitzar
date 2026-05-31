@@ -22,9 +22,13 @@ export const useTeamRegisterActions = () => {
 
       const userId = user.id;
 
-      const allUserTeams = allTeams?.find((t) => t.ownerId == userId)
-      if (allUserTeams) {
+      const verifyTeamCreated = allTeams?.find((t) => t.ownerId == userId)
+      if (verifyTeamCreated) {
         throw new Error("Você já criou um grupo!");
+      }
+      const verifyCodeUnification = allTeams?.find((t) => t.code == code)
+      if (verifyCodeUnification) {
+        throw new Error("Código já foi usado!");
       }
 
       await handleSave(user, title, description, code); // Salva os dados no banco

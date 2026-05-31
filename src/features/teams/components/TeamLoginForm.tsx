@@ -31,6 +31,7 @@ const TeamLoginForm = ({authUser} : LoginFormProps) => {
       // navigate('/home', { state: { justLoggedInTeam: loggedTeam } });
       localStorage.setItem('logged_team', JSON.stringify(loggedTeam));
       window.location.href = "/home";
+      
     } catch (error) {
       toast.error(String(error))
     }
