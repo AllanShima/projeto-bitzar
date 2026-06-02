@@ -20,8 +20,10 @@ export interface User {
   lastName: string,
   email: string,
   password: string,
+  jobPosition: string,
+  jobDescription: string,
   teamLoggedIn?: Team | null,
-  createdAt?: string
+  createdAt?: Date
 }
 
 export interface TeamMember {

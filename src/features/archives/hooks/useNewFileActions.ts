@@ -16,8 +16,8 @@ export const useNewFileActions = () => {
         if (!file) {
           throw new Error('No file provided');
         }
-
-        const savedFile = await fileStorageService.saveFile(file) as unknown as { size: number; url: string };
+        const teamTitle = authUser.teamLoggedIn?.title;
+        const savedFile = await fileStorageService.saveFile(teamTitle!, file) as unknown as { size: number; url: string };
         // retorna {
         //     size: number,
         //     url: string

@@ -2,12 +2,13 @@ import { auth } from '@/config/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useState, type SubmitEvent } from 'react'
 import { FaUnlockAlt, FaLock, FaUser } from "react-icons/fa";
-
+import { FaClipboardUser } from "react-icons/fa6";
 import toast, { Toaster } from 'react-hot-toast';
 import UserInputLabel from '@/ui/UserInputLabel';
 import { useNavigate } from 'react-router';
 import { FirebaseError } from 'firebase/app';
 import { useCreateUser } from '@/hooks/usersQuery';
+import type { User } from '@/interfaces/Interfaces';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -18,7 +19,9 @@ const Register = () => {
     lastName: '',
     email: '',
     password: '',
-    confirmPass: ''
+    confirmPass: '',
+    jobPosition: '',
+    jobDescription: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -28,8 +31,17 @@ const Register = () => {
   }
 
   const handleSave = async (firebaseUid: string) => {
-    const { firstName, lastName, email, password } = formData;
-    createUserMutation.mutate({ id: firebaseUid, firstName: firstName, lastName: lastName, email: email, password: password });
+    const { firstName, lastName, email, password, jobPosition, jobDescription } = formData;
+    const user: User = {
+      id: firebaseUid, 
+      firstName: firstName, 
+      lastName: lastName, 
+      email: email, 
+      password: password,
+      jobPosition: jobPosition,
+      jobDescription: jobDescription
+    }
+    createUserMutation.mutate(user);
   };
 
   const handleRegister = async (e : SubmitEvent<HTMLFormElement>) => {
@@ -91,8 +103,12 @@ const Register = () => {
                     <UserInputLabel state={formData.lastName} setState={(y) => handleChange("lastName", y)} placeholder='Digite seu sobrenome...' Icon={FaUser} label='Sobrenome'/>
                     <UserInputLabel state={formData.password} setState={(y) => handleChange("password", y)} placeholder='Digite sua senha...' Icon={FaUnlockAlt} label='Senha'/>
                     <UserInputLabel state={formData.confirmPass} setState={(y) => handleChange("confirmPass", y)} placeholder='Digite sua senha novamente' Icon={FaLock} label='Digite a senha novamente'/>
+                    
+                    {/* Informações do cargo de trabalho do usuário */}
+                    <UserInputLabel state={formData.jobPosition} setState={(y) => handleChange("jobPosition", y)} placeholder='Desenvolvedor Senior de React...' Icon={FaClipboardUser} label='Cargo de Trabalho'/>
 
                   </div>
+                  <UserInputLabel state={formData.jobDescription} setState={(y) => handleChange("jobDescription", y)} placeholder='Faço as principais revisões e decisões do time...' label='Descrição do Cargo de Trabalho'/>
 
                   <button 
                   type='submit'

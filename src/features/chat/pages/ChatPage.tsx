@@ -14,7 +14,8 @@ interface ChatPageProps {
 const ChatPage = ({ authUser }: ChatPageProps) => {
   const [userText, setUserText] = useState("");
   const [containsText, setContainsText] = useState(false);
-  const { handleTextSubmit, loading: loadingResponse, handleUpdate, model } = useTextSubmitActions();
+  
+  const { handleTextSubmit, loading: loadingResponse, handleUpdate, model } = useTextSubmitActions(authUser);
 
   // mensagens do usuário logado
   const memberFromLoggedTeam = authUser.teamLoggedIn?.members!.find((m) => m.user?.id === authUser.id)
@@ -30,8 +31,8 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
         content: "Olá, como eu posso te ajudar?",
         createdAt: new Date(),
       };
-      setMessages([starterAIMessage]);
       handleUpdate(authUser, [starterAIMessage]); // Salva a inicial no banco
+      setMessages([starterAIMessage]);
     }
   }, []); // Executa apenas uma vez ao montar o componente
 
@@ -51,7 +52,7 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
     setContainsText(false);
 
     try {
-      const result = await handleTextSubmit(authUser, userText);
+      const result = await handleTextSubmit(userText);
       
       if (result) {
         // Adiciona a resposta da IA na tela (a do usuário já adicionamos acima)

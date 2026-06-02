@@ -4,13 +4,13 @@ import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage
 
 export const fileStorageService = {
   // Criar/Salvar novo arquivo
-  async saveFile(fileData: File) {
+  async saveFile(teamTitle: string, fileData: File) {
     if (!fileData) {
       throw new Error("Nenhum arquivo fornecido para upload.");
     }
 
     try {
-      const fileRef = ref(storage, `pdf/${fileData.name}`);
+      const fileRef = ref(storage, `${teamTitle}/pdf/${fileData.name}`);
 
       // Aguarda o upload do arquivo
       const snapshot = await uploadBytes(fileRef, fileData);

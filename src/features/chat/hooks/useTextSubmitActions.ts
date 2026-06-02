@@ -1,15 +1,50 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Message, TeamMember, User } from '@/interfaces/Interfaces';
 import { useOllama } from '../models/useOllama';
 import { arrayUnion } from 'firebase/firestore';
 import { useUpdateTeam } from '@/hooks/teamQuery';
+import { convertUrlToFile } from '@/features/chat/utils/useConvertUrlToFile'
 
-export const useTextSubmitActions = () => {
+export const useTextSubmitActions = (authUser: User) => {
   const updateTeamMutation = useUpdateTeam();
-  const { generate, loading: loadingModel, model } = useOllama();
+  const { generateWithRAG, processDocsMessages, loading: loadingModel, model } = useOllama();
   const [loading, setLoading] = useState(false);
 
-  const handleTextSubmit = async (authUser: User, userText: string) => {
+  const isThereFiles = (authUser.teamLoggedIn?.files?.length ?? 0) >= 1;
+  const isThereUsers = (authUser.teamLoggedIn?.members?.length ?? 0) > 1;
+
+  // COLOCAR DENTRO DO USEEFFECT É OBRIGATÓRIO!
+  useEffect(() => {
+    if (isThereFiles || isThereUsers) {
+      const urlsList = authUser.teamLoggedIn?.files!.map(f => f.fileAddress).filter(Boolean) || [];
+
+      const loadFilesAndProcess = async () => {
+        try {
+          console.log("Iniciando conversão de arquivos...");
+          const filesList: File[] = await Promise.all(
+            urlsList.map((url, index) => convertUrlToFile(url!, `arquivo_${index}.pdf`))
+          );
+
+          console.log("Arquivos convertidos com sucesso:", filesList);
+          await processDocsMessages(filesList);
+
+        } catch (error) {
+          console.error("Erro ao converter as URLs em arquivos File:", error);
+        }
+      };
+
+      loadFilesAndProcess();
+    }
+    // 🎯 CORREÇÃO NAS DEPENDÊNCIAS: 
+    // Em vez de passar o objeto array completo, passamos o LENGTH (comprimento) dele ou deixamos vazio [].
+    // Assim, ele só vai rodar de novo se o número de arquivos REALMENTE mudar (ex: o usuário upou um PDF novo).
+    }, [authUser.teamLoggedIn?.files?.length, isThereFiles, isThereUsers]);
+
+  useEffect(() => {
+    setLoading(loadingModel);
+  }, [loadingModel])
+
+  const handleTextSubmit = async (userText: string) => {
     try {
       if (loadingModel) throw new Error("O modelo de IA ainda está carregando!");
 
@@ -22,15 +57,23 @@ export const useTextSubmitActions = () => {
       };
 
       // 1. Gera a resposta da IA
-      const aiResponse = await generate(userText);
+      const groupMembers = authUser.teamLoggedIn?.members || [];
+      const convertedUsersData = groupMembers
+        .filter((m) => m.user?.id !== authUser.id) // 🛡️ Remove o usuário logado
+        .map((m) => ({
+          fullName: (m.user?.firstName || "") + " " + (m.user?.lastName || ""),
+          jobPosition: m.user?.jobPosition || "Não informado",
+          jobDescription: m.user?.jobDescription || "Não informado"
+        })) || []; // Fallback para array vazio caso não existam membros
+      console.log("Usuários convertidos com sucesso:", JSON.stringify(convertedUsersData, null, 2));
+
+      const aiResponse = await generateWithRAG(userText, convertedUsersData);
 
       const newAIMessage: Message = {
         role: 'ai',
         content: aiResponse || "Desculpe, não consegui processar sua resposta.",
         createdAt: new Date(),
       };
-
-
 
       // 2. Salva ambas as mensagens no Firebase usando mutateAsync de forma sequencial
       // (Supondo que seu service use arrayUnion ou salve o payload completo ajustado)
@@ -56,7 +99,7 @@ export const useTextSubmitActions = () => {
     
     // 1. Mapeia os membros alterando APENAS o membro atual na memória
     const updatedMembers = authUser.teamLoggedIn?.members!.map((member: any) => {
-      if (member.id === authUser.id) {
+      if (member.user.id == authUser.id) {
         const currentMessages = member.messages || [];
         return {
           ...member,

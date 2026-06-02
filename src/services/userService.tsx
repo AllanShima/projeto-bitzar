@@ -26,12 +26,14 @@ export const userService = {
       }
       const newDocRef = doc(db, 'users', userData.id);
       
-      const userPayload = {
+      const userPayload: User = {
         id: userData.id, // id gerado pelo firebase auth
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
         password: userData.password,
+        jobPosition: userData.jobPosition,
+        jobDescription: userData.jobDescription,
         teamLoggedIn: null,
         createdAt: new Date()
       };

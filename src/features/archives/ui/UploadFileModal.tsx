@@ -17,8 +17,6 @@ const UploadFileModal = ({authUser, setFiles, setIsOpen} : UploadFileProp) => {
     const [fileDescription, setFileDescription] = useState('');
     const [file, setFile] = useState<File | null>(null);
 
-    
-
     const handleClick = async () => {
         try {
             if (!fileDescription || !file) {

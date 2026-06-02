@@ -44,6 +44,7 @@ bun start
 - bun install @google/generative-ai
 - bun install ollama
 - bun install --save groq-sdk
+- bun add vector-storage
 
 - bun install pdfjs-dist          Biblioteca pra ler pdfs no navegador
 

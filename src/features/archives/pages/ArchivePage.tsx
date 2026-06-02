@@ -45,6 +45,7 @@ const ArchivePage = ({authUser}: ArchivePageProps) => {
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const [searchText, setSearchText] = useState("");
 
+  // Funcionalidade de procura
   useEffect(() => {
     if (searchText.trim() === "") {
       setFiles(filesFromTeamLoggedIn);

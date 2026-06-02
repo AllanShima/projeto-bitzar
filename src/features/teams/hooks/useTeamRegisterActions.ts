@@ -30,6 +30,10 @@ export const useTeamRegisterActions = () => {
       if (verifyCodeUnification) {
         throw new Error("Código já foi usado!");
       }
+      const verifyTitleUnification = allTeams?.find((t) => t.title == title) 
+      if (verifyTitleUnification) {
+        throw new Error("Título já foi usado!");
+      }
 
       await handleSave(user, title, description, code); // Salva os dados no banco
 

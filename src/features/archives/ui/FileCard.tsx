@@ -21,18 +21,6 @@ const FileCard = ({authUser, file, setFiles} : FileCardProps) => {
     const [fileSettingsModal, setFileSettingsModal] = useState(false);
     const [fileDeleteModal, setFileDeleteModal] = useState(false);
 
-    const handleDownload = () => {
-        // toast.promise(
-        //     saveSettings(settings),
-        //     {
-        //         loading: 'Saving...',
-        //         success: <b>Settings saved!</b>,
-        //         error: <b>Could not save.</b>,
-        //     }
-        // );
-        toast.success("Arquivo instalado com sucesso!");
-    }
-
     const fileSize = `${file.fileSize! / 1000} Kb`
 
     return (
