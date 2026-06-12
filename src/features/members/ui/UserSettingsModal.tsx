@@ -17,6 +17,7 @@ interface UserSettingsModalProps {
 const UserSettingsModal = ({authUser, toAlterMember, teamMembers, setTeamMembers, setIsOpen} : UserSettingsModalProps) => {
 
   const [userStatus, setUserStatus] = useState<'admin' | 'participant' | 'owner'>(toAlterMember!.status);
+  
   const { handleAlterMember, loading } = useAlterMemberActions();
 
   const handleUserUpdate = async () => {

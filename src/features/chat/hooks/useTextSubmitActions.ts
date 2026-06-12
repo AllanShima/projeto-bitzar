@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { Message, TeamMember, User } from '@/interfaces/Interfaces';
-import { useOllama } from '../models/useOllama';
+import { useRAG } from './useRAG';
 import { arrayUnion } from 'firebase/firestore';
 import { useUpdateTeam } from '@/hooks/teamQuery';
 import { convertUrlToFile } from '@/features/chat/utils/useConvertUrlToFile'
 
-export const useTextSubmitActions = (authUser: User) => {
+export const useTextSubmitActions = (authUser: User, PROVIDER: string) => {
   const updateTeamMutation = useUpdateTeam();
-  const { generateWithRAG, processDocsMessages, loading: loadingModel, model } = useOllama();
+  const { generateWithRAG, processDocsMessages, loading: loadingModel, activeProvider: provider } = useRAG(PROVIDER);
   const [loading, setLoading] = useState(false);
 
   const isThereFiles = (authUser.teamLoggedIn?.files?.length ?? 0) >= 1;
@@ -56,17 +56,42 @@ export const useTextSubmitActions = (authUser: User) => {
         createdAt: new Date(),
       };
 
-      // 1. Gera a resposta da IA
       const groupMembers = authUser.teamLoggedIn?.members || [];
-      const convertedUsersData = groupMembers
-        .filter((m) => m.user?.id !== authUser.id) // 🛡️ Remove o usuário logado
-        .map((m) => ({
-          fullName: (m.user?.firstName || "") + " " + (m.user?.lastName || ""),
-          jobPosition: m.user?.jobPosition || "Não informado",
-          jobDescription: m.user?.jobDescription || "Não informado"
-        })) || []; // Fallback para array vazio caso não existam membros
-      console.log("Usuários convertidos com sucesso:", JSON.stringify(convertedUsersData, null, 2));
 
+      // Função auxiliar para normalizar o cargo e bater com os tokens do PDF
+      const normalizeJobPosition = (position: string): string => {
+        const lower = position.toLowerCase();
+        if (lower.includes('sênior') || lower.includes('senior') || lower.includes('arquiteto')) {
+          return 'Desenvolvedor Sênior / Arquiteto';
+        }
+        if (lower.includes('pleno')) {
+          return 'Desenvolvedor Pleno';
+        }
+        if (lower.includes('júnior') || lower.includes('junior')) {
+          return 'Desenvolvedor Júnior';
+        }
+        return position;
+      };
+
+      let convertedUsersData = groupMembers
+        .filter((m) => m.user?.id !== authUser.id)
+        .map((m) => ({
+          fullName: `${m.user?.firstName || ""} ${m.user?.lastName || ""}`.trim(),
+          jobPosition: normalizeJobPosition(m.user?.jobPosition || "Não informado"),
+          jobDescription: m.user?.jobDescription || "Não informado"
+        }));
+
+      if (convertedUsersData.length === 0) {
+        convertedUsersData = [
+          {
+            fullName: `${authUser.firstName || ""} ${authUser.lastName || ""}`.trim(),
+            jobPosition: normalizeJobPosition(authUser.jobPosition || "Não informado"),
+            jobDescription: authUser.jobDescription || "Não informado"
+          }
+        ];
+      }
+
+      // Dispara para o RAG com os cargos perfeitamente alinhados aos tokens do PDF
       const aiResponse = await generateWithRAG(userText, convertedUsersData);
 
       const newAIMessage: Message = {
@@ -119,5 +144,5 @@ export const useTextSubmitActions = (authUser: User) => {
     });
   }
 
-  return { handleTextSubmit, loading, handleUpdate, model };
+  return { handleTextSubmit, loading, handleUpdate, provider };
 };

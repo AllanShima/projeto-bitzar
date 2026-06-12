@@ -6,6 +6,7 @@ import ChatBody from '@/features/chat/components/ChatBody';
 import type { Message, User } from '@/interfaces/Interfaces';
 import { HiDotsHorizontal } from "react-icons/hi";
 import { useTextSubmitActions } from '../hooks/useTextSubmitActions';
+import ModelSelectionInput from '@/ui/ModelSelectionInput';
 
 interface ChatPageProps {
   authUser: User;
@@ -14,8 +15,10 @@ interface ChatPageProps {
 const ChatPage = ({ authUser }: ChatPageProps) => {
   const [userText, setUserText] = useState("");
   const [containsText, setContainsText] = useState(false);
+
+  const [model, setModel] = useState<'gemini' | 'ollama'>('ollama');
   
-  const { handleTextSubmit, loading: loadingResponse, handleUpdate, model } = useTextSubmitActions(authUser);
+  const { handleTextSubmit, loading: loadingResponse, handleUpdate, provider } = useTextSubmitActions(authUser, model);
 
   // mensagens do usuário logado
   const memberFromLoggedTeam = authUser.teamLoggedIn?.members!.find((m) => m.user?.id === authUser.id)
@@ -79,9 +82,16 @@ const ChatPage = ({ authUser }: ChatPageProps) => {
               DocPilot: Seu co-piloto de acesso fácil a dados empresariais!
             </h2>
           </span>
-          <p className='font-light opacity-90'>
-            Modelo de IA Generativa: {model}
-          </p>
+          <div className='flex items-center gap-2'>
+            <p className='font-light opacity-90'>
+              Modelo de IA Generativa sendo usada: {provider}
+            </p>
+            <div className='flex flex-col w-fit h-fit space-y-2 items-center'>
+              <div className='flex w-fit h-fit py-2'>
+                <ModelSelectionInput activeButton={model} setActiveButton={setModel}/>               
+              </div>                        
+            </div>            
+          </div>
         </div>
 
         {/* Corpo Interno */}

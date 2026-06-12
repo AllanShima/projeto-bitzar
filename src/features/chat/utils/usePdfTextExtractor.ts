@@ -5,30 +5,33 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLi
 export const extractChunksFromPDF = async (file: File): Promise<string[]> => {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  let fullText = "";
+  const chunks: string[] = [];
 
-  // 1. Extrai o texto completo do PDF
+  // Indexa página por página para manter o contexto visual e estrutural intacto
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const textContent = await page.getTextContent();
-    const pageText = textContent.items.map((item: any) => item.str).join(" ");
-    fullText += pageText + "\n";
-  }
+    
+    const pageText = textContent.items
+      .map((item: any) => {
+        // Garante compatibilidade caso o objeto tenha estrutura diferente
+        if (typeof item === 'string') return item;
+        return item?.str || item?.text || ""; 
+      })
+      .join(" ")
+      .trim(); // Remove espaços extras nas pontas
 
-  // 2. FATIAMENTO (Chunking): Quebra o texto a cada ~500 caracteres respeitando os pontos finais
-  const chunks: string[] = [];
-  const sentences = fullText.split(/[.!?]\s+/);
-  let currentChunk = "";
-
-  for (const sentence of sentences) {
-    if ((currentChunk + sentence).length > 500) {
-      chunks.push(currentChunk.trim());
-      currentChunk = sentence + ". ";
-    } else {
-      currentChunk += sentence + ". ";
+    // Se mesmo assim falhar, coloca um log para você pegar no console na hora
+    if (!pageText) {
+      console.warn(`⚠️ Alerta: Nenhum texto extraído da Página ${i}. Verifique a estrutura do PDF.`);
     }
-  }
-  if (currentChunk) chunks.push(currentChunk.trim());
 
-  return chunks; // Retorna uma lista de parágrafos menores
+    // 🚀 O PULO DO GATO: Injeta metadados no topo do chunk. 
+    // Isso blinda o modelo local (3b) dando a ele a localização exata da informação.
+    const structuredChunk = `[Origem: Documento "${file.name}" | Página: ${i}]\n---\n${pageText}`;
+    
+    chunks.push(structuredChunk);
+  }
+
+  return chunks; // Retorna cada página estruturada como um chunk único
 };

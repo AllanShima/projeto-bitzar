@@ -41,7 +41,7 @@ bun start
 - npm install --save-dev jsdoc
 - bun install @tanstack/react-query
 
-- bun install @google/generative-ai
+- bun install @google/genai
 - bun install ollama
 - bun install --save groq-sdk
 - bun add vector-storage
