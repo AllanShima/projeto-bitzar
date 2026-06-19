@@ -11,6 +11,7 @@
 - [Problema](#problema)
 - [Solução](#solução)
 - [Projeto](#projeto)
+- [Dificuldade](#dificuldade)
 - [Exemplo](#exemplo)
 - [Extesões e Bibliotecas](#extesões-e-bibliotecas)
 - [Arquitetura e Organização](#arquitetura-e-organização)
@@ -51,6 +52,14 @@
 - Login e Registro do usuário;
 - Diferentes acessos para usuários com papéis diferentes;
 - Armazenamento do chat completo para cada usuário;
+
+OBS: para o desenvolvimento do projeto, a fim de minimizar os custos e o tempo, foi elaborado as seguintes modificações:
+- Chunks para embedding foram de trechos para uma página inteira (embedding acaba sendo mais rápido porem muitos tokens);
+- Usado uma LLM local (qwen2.5 de 3B) de Ollama ao invés de um modelo cloud;
+Por conta dessas principais modificações e a falta de uma GPU, o modelo demora para gerar uma resposta (cerca de 10mins com um documento de 1 página).
+
+## Dificuldade
+> O principal problema com esse projeto é a falta de integração com tecnologias que minimizam a quantidade de tokens geradas. Quanto mais arquivos, mais tokens ele gera.
 
 ## Exemplo
 1. O usuário Allan Shinhama, Cargo: Desenvolvedor Sênior de React, sendo o único membro desse grupo, faz o upload de um arquivo sobre padrões de desenvolvimento front-end;
