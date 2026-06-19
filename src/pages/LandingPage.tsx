@@ -49,7 +49,7 @@ const LandingPage = () => {
             Prototipo: 
           </h1>
           <h1 className='bg-linear-to-r from-sky-500 to-fuchsia-500 inline-block text-transparent bg-clip-text text-3xl font-bold'>
-            Plataforma Online com Criação de Grupos e Suporte ao Co-Piloto para Desenvolvedores
+            Plataforma Copiloto Chatbot para Desenvolvedores
           </h1>          
         </span>
 

@@ -17,7 +17,7 @@ bun start
 
 ---
 
-## Se for rodar o código, siga esses passos:
+## Para teste:
 - Se n optar por usar bun: use 'npm install' msm
 - Verifique se há 'Bun' instalado no PC: "bun --version"
 - Se n, instale: "powershell -c "irm bun.sh/install.ps1 | iex"
@@ -25,7 +25,7 @@ bun start
     "git clone https://github.com/AllanShima/Projeto-Bitzar.git"
     "cd Projeto-Bitzar"
 - Instale as dependencias do projeto: "bun install"
-- Sempre que quiser rodar: "bun dev"
+- Sempre que quiser rodar na máquina: "bun dev"
 
 #### Hosteando: https://bitzar-docpilot.web.app
 
@@ -53,18 +53,33 @@ bun start
 ---
 
 #### Arquitetura utilizada
-Pra organizar os componentes, hooks e fetch calls do firebase. Foi utilizado uma Arquitetura Baseada em Features
+Pra organizar os componentes, hooks e fetch calls do firebase. Foi utilizado uma Arquitetura baseada em Features (Funcionalidades)
 - Onde cada pasta representa o que ela faz:
 
 src/
-├── assets/          # Static files (images, fonts)
-├── config/          # Firebase config, LLM API constants
-├── features/        # The core of your app
+
+├── assets/          # Arquivos estáticos (fontes, imagens)
+
+├── config/          # Configuração Firebase, API LLM
+
+├── features/        # O Coração do app
+
 │   ├── auth/        # Login, Signup, Auth hooks
-│   ├── chat/        # LLM integration, Message components, Streaming logic
-│   └── dashboard/   # Data fetching, User stats
-├── hooks/           # Global reusable hooks (e.g., useLocalStorage)
-├── interfaces/      # Global reusable modals
-├── services/        # Firebase & API fetch wrappers (The "Data Layer")
-├── ui/              # Generic Tailwind components (Buttons, Inputs, Modals)
-└── utils/           # Helper functions (Date formatting, String parsing)
+
+│   ├── chat/        # Integração LLM, Componentes de mensagens
+
+│   └── team/        # Componentes de login ou registro de times/grupo
+
+│   └── members/     # Componentes de configuração dos membros do grupo
+
+│   └── archives/    # Componentes de configuração dos arquivos do grupo
+
+├── hooks/           # Hooks globais reutilizáveis
+
+├── interfaces/      # Interfaces Globais
+
+├── services/        # Serviços e funções Firestore Firebase
+
+├── ui/              # Componentes genéricos (Buttons, Inputs, Modals)
+
+└── utils/           # Funções de ajuda (Date formatting, String parsing)

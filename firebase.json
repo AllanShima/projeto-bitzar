@@ -1,7 +1,7 @@
 {
   "hosting": {
     "site": "bitzar-docpilot",
-    "public": "y",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
